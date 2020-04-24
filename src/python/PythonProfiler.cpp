@@ -1,4 +1,4 @@
-#include "Profiler.h"
+#include "PythonProfiler.h"
 
 #include <Python.h>
 #include <util/logging.h>

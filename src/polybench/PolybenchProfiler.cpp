@@ -1,4 +1,4 @@
-#include "Profiler.h"
+#include "PolybenchProfiler.h"
 
 #include <stdio.h>
 #include <stdlib.h>

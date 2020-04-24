@@ -1,4 +1,4 @@
-#include "Profiler.h"
+#include "GenericFunctionProfiler.h"
 
 #include <util/logging.h>
 #include <fstream>

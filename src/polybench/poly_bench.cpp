@@ -1,4 +1,4 @@
-#include "Profiler.h"
+#include "PolybenchProfiler.h"
 
 #include <util/logging.h>
 #include <util/config.h>
