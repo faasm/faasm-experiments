@@ -14,6 +14,6 @@ include_directories(
 
 add_subdirectory(third-party/faasm)
 
-add_subdirectory(capacity)
-add_subdirectory(omp)
-add_subdirectory(sgd)
+add_subdirectory(src/capacity)
+add_subdirectory(src/omp)
+add_subdirectory(src/sgd)

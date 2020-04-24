@@ -11,13 +11,12 @@ from invoke import task
 from psutil import cpu_count
 
 import faasmcli.tasks.knative as kn
-from faasmcli.util.billing import start_billing, pull_billing, parse_billing
-from faasmcli.util.billing_data import plot_billing_data_multi
+import tasks.data
+from faasmcli.util.call import invoke_impl
 from faasmcli.util.endpoints import is_kubernetes, get_invoke_host_port
 from faasmcli.util.env import FAASM_HOME, PROJ_ROOT
-from faasmcli.util.call import invoke_impl
-
-import tasks.data
+from tasks.util.billing import start_billing, pull_billing, parse_billing
+from tasks.util.billing_data import plot_billing_data_multi
 
 
 class ExperimentRunner(object):
