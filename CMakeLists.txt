@@ -14,6 +14,8 @@ include_directories(
 
 add_subdirectory(third-party/faasm)
 
+add_subdirectory(src/bench)
 add_subdirectory(src/capacity)
 add_subdirectory(src/omp)
-add_subdirectory(src/sgd)
+add_subdirectory(src/polybench)
+add_subdirectory(src/python)

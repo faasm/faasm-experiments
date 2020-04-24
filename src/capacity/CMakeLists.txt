@@ -1,3 +1,6 @@
+add_executable(capacity_experiment capacity_experiment.cpp)
+target_link_libraries(capacity_experiment bench)
+
 add_executable(max_mem_experiment max_mem_experiment.cpp)
 
 add_executable(max_thread_experiment max_thread_experiment.cpp)

@@ -1,3 +1,0 @@
-# Stochastic Gradient Descent
-
-TODO
