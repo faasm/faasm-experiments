@@ -2,7 +2,7 @@
 #include <util/config.h>
 #include <util/timing.h>
 #include <util/locks.h>
-#include <runner/function.h>
+#include <profiler/function.h>
 #include <fstream>
 #include <unistd.h>
 

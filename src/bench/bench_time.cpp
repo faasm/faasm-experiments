@@ -1,6 +1,6 @@
 #include <wasm/WasmModule.h>
 #include <util/config.h>
-#include <runner/function.h>
+#include <profiler/function.h>
 
 #define USER "demo"
 #define FUNCTION "noop"

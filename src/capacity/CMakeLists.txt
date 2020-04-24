@@ -1,5 +1,5 @@
 add_executable(capacity_experiment capacity_experiment.cpp)
-target_link_libraries(capacity_experiment bench)
+target_link_libraries(capacity_experiment profiler)
 
 add_executable(max_mem_experiment max_mem_experiment.cpp)
 

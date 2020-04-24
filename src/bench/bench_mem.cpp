@@ -1,4 +1,4 @@
-#include "function.h"
+#include <profiler/function.h>
 
 #include <wasm/WasmModule.h>
 

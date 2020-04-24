@@ -1,6 +1,6 @@
 #pragma once
 
-#include <runner/Profiler.h>
+#include <profiler/Profiler.h>
 
 namespace runner {
     class PolybenchProfiler : public Profiler {
