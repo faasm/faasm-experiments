@@ -23,16 +23,13 @@ git submodule update --init third-party/wamr
 
 ### Python
 
-This project adds extra tasks to the existing Faasm CLI, so you need to set up the 
-normal Faasm Python environment. This can be done with:
+This project adds extra tasks to the existing Faasm CLI, which it imports
+using the `faasmcli` module. So you need to set up a virtual env for this project:
 
-```bash
-source third-party/faasm/workon.sh
-pip install -r third-party/faasm/requirements.txt
-
-# Double check we're using the Faasm venv
-which python
-
-# Check Python path (needs to be replicated in IDEs etc.)
-echo $PYTHONPATH
-``` 
+```
+python3 -m venv venv
+source venv/bin/activate
+cd third-party/faasm/faasmcli
+pip install -r requirements.txt 
+pip install -e .
+```

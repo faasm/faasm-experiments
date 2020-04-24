@@ -1,7 +1,7 @@
 from os import makedirs
 from os.path import join, exists
 
-from tasks.util.env import HOME_DIR, FAASM_DATA_DIR
+from faasmcli.util.env import FAASM_DATA_DIR
 
 # NOTE - THESE HAVE TO MATCH PYFAASM
 SUBMATRICES_KEY_A = "mat_a"

@@ -7,13 +7,14 @@ from subprocess import check_output
 
 from invoke import task
 
-from tasks.util.endpoints import get_kubernetes_upload_host, get_upload_host_port
-from tasks.util.env import FUNC_DIR, FAASM_SHARED_STORAGE_ROOT
-from tasks.util.env import DATA_S3_BUCKET, FAASM_DATA_DIR
+from faasmcli.util.endpoints import get_kubernetes_upload_host, get_upload_host_port
+from faasmcli.util.env import FUNC_DIR, FAASM_SHARED_STORAGE_ROOT
+from faasmcli.util.env import DATA_S3_BUCKET, FAASM_DATA_DIR
+from faasmcli.util.state import upload_binary_state, upload_sparse_matrix
+from faasmcli.util.state import upload_shared_file
+from faasmcli.util.upload_util import upload_file_to_s3, download_file_from_s3
+
 from tasks.util.matrices import get_matrix_dir
-from tasks.util.state import upload_binary_state, upload_sparse_matrix
-from tasks.util.state import upload_shared_file
-from tasks.util.upload_util import upload_file_to_s3, download_file_from_s3
 
 _GENOMICS_TAR_NAME = "genomics.tar.gz"
 _GENOMICS_TAR_PATH = "/tmp/{}".format(_GENOMICS_TAR_NAME)

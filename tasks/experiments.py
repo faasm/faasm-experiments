@@ -10,12 +10,14 @@ from time import time, sleep
 from invoke import task
 from psutil import cpu_count
 
-import tasks.knative
-from tasks.util.billing import start_billing, pull_billing, parse_billing
-from tasks.util.billing_data import plot_billing_data_multi
-from tasks.util.endpoints import is_kubernetes, get_invoke_host_port
-from tasks.util.env import FAASM_HOME, PROJ_ROOT
-from tasks.util.invoke import invoke_impl
+import faasmcli.tasks.knative as kn
+from faasmcli.util.billing import start_billing, pull_billing, parse_billing
+from faasmcli.util.billing_data import plot_billing_data_multi
+from faasmcli.util.endpoints import is_kubernetes, get_invoke_host_port
+from faasmcli.util.env import FAASM_HOME, PROJ_ROOT
+from faasmcli.util.call import invoke_impl
+
+import tasks.data
 
 
 class ExperimentRunner(object):
@@ -294,10 +296,10 @@ def matrix_multi(ctx, n_workers, native=False, nobill=False):
     for mat_size in sizes:
         for n_splits in splits:
             if native:
-                tasks.knative.delete_native_python(ctx, hard=False)
+                kn.delete_native_python(ctx, hard=False)
                 sleep_time = 60
             else:
-                tasks.knative.delete_worker(ctx, hard=False)
+                kn.delete_worker(ctx, hard=False)
                 sleep_time = 130
 
             print("\nUPLOADING STATE - {}x{} {}\n".format(mat_size, mat_size, n_splits))
@@ -416,9 +418,9 @@ def tf_lat(ctx):
 
             # Tidy up
             if native:
-                tasks.knative.delete_native(ctx, "tf", "image", hard=False)
+                kn.delete_native(ctx, "tf", "image", hard=False)
             else:
-                tasks.knative.delete_worker(ctx, hard=False)
+                kn.delete_worker(ctx, hard=False)
 
             sleep(30)
 
@@ -480,9 +482,9 @@ def tf_tpt(ctx, native=False, nobill=False):
 
             # Tidy up
             if native:
-                tasks.knative.delete_native(ctx, "tf", "image", hard=False)
+                kn.delete_native(ctx, "tf", "image", hard=False)
             else:
-                tasks.knative.delete_worker(ctx, hard=False)
+                kn.delete_worker(ctx, hard=False)
 
             sleep_time = 40
             sleep(sleep_time)

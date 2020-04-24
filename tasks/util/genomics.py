@@ -1,6 +1,7 @@
 from os import listdir
 from os.path import join
-from tasks.util.env import FAASM_DATA_DIR
+
+from faasmcli.util.env import FAASM_DATA_DIR
 
 # Reads are sequences of indexed nucleotides and are the input to the mapper
 # Not sure what the best source is so far, but have found some examples
