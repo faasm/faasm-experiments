@@ -32,7 +32,6 @@ You'll need to restart the host once Ansible has finished.
 Once the host is fully set up, you can SSH onto it and run:
 
 ```
-cd /usr/local/code/faasm
 ./bin/set_up_benchmarks.sh
 ```
 
