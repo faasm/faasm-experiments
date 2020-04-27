@@ -1,19 +1,15 @@
 import multiprocessing
-from os import walk, makedirs, listdir
+from os import listdir
 from os.path import join, exists
 from shutil import rmtree
-from subprocess import call
 from subprocess import check_output
 
 from invoke import task
 
-from faasmcli.util.endpoints import get_kubernetes_upload_host, get_upload_host_port
-from faasmcli.util.env import FUNC_DIR, FAASM_SHARED_STORAGE_ROOT
+from faasmcli.util.endpoints import get_kubernetes_upload_host
 from faasmcli.util.env import DATA_S3_BUCKET, FAASM_DATA_DIR
 from faasmcli.util.state import upload_binary_state, upload_sparse_matrix
-from faasmcli.util.state import upload_shared_file
 from faasmcli.util.upload_util import upload_file_to_s3, download_file_from_s3
-
 from tasks.util.matrices import get_matrix_dir
 
 _GENOMICS_TAR_NAME = "genomics.tar.gz"
@@ -185,44 +181,3 @@ def matrix_state(ctx, mat_size, n_splits, host=None, knative=True):
     args = [(data_dir, f, user, host) for f in file_names]
     p = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
     p.starmap(_do_upload, args)
-
-
-# -------------------------------------------------
-# TENSORFLOW UPLOAD
-# -------------------------------------------------
-
-@task
-def tf_state(ctx, host=None, knative=True):
-    """
-    Upload TF experiment state
-    """
-    data_dir = join(FUNC_DIR, "tf", "data")
-    model_file = "mobilenet_v1_1.0_224.tflite"
-    host, _ = get_upload_host_port(host, None)
-
-    _do_upload(data_dir, model_file, "tf", host, key="mobilenet_v1")
-
-
-@task
-def tf_upload(ctx, host=None, local_copy=False):
-    """
-    Upload TF experiment data
-    """
-    host, port = get_upload_host_port(host, None)
-
-    source_data = join(FUNC_DIR, "tf", "data")
-
-    dest_root = join(FAASM_SHARED_STORAGE_ROOT, "tfdata")
-    if local_copy and not exists(dest_root):
-        makedirs(dest_root)
-
-    for root, dirs, files in walk(source_data):
-        for filename in files:
-            file_path = join(source_data, filename)
-
-            if local_copy:
-                dest_file = join(dest_root, filename)
-                call("cp {} {}".format(file_path, dest_file), shell=True)
-            else:
-                shared_path = "tfdata/{}".format(filename)
-                upload_shared_file(host, file_path, shared_path)
