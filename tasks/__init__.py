@@ -1,6 +1,7 @@
 from invoke import Collection
 
 from . import bench_capacity
+from . import bench_omp
 from . import bench_mem
 from . import bench_time
 from . import bench_tpt
@@ -33,5 +34,6 @@ bench_ns.add_task(bench_mem.kill_faasm)
 bench_ns.add_task(bench_mem.plot_pid_mem)
 bench_ns.add_task(bench_mem.plot_proc_mem)
 bench_ns.add_task(bench_mem.print_docker_mem)
+bench_ns.add_task(bench_omp.multi_pi)
 ns.add_collection(bench_ns)
 
