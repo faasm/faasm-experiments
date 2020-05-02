@@ -1,2 +1,11 @@
-add_executable(bench_omp bench_omp.cpp)
-target_link_libraries(bench_omp profiler)
+set(runner_libs
+        worker_lib
+        wasm
+        wavmmodule
+        util
+        module_cache
+        system
+        )
+
+add_executable(bench_loops bench_loops.cpp)
+target_link_libraries(bench_loops ${runner_libs})

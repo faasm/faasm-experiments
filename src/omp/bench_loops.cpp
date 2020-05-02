@@ -6,7 +6,7 @@
 #include <util/logging.h>
 #include <util/timing.h>
 
-constexpr auto DOCKER_CMD = "/usr/bin/docker run --cpus=20 -v /usr/local/code/faasm/wasm:/wasm --rm faasm/omp-musl:0.1.3 docker_benchmarker ";
+constexpr auto DOCKER_CMD = "/usr/bin/docker run --cpus=20 -v /usr/local/code/faasm/wasm:/wasm --rm faasm/omp-musl:0.1.5 docker_benchmarker ";
 
 void nativeRun(const std::string &funcName, int numRuns);
 
@@ -99,7 +99,7 @@ void wasmRun(const std::string &user, const std::string &funcName, int wasmItera
 
 void wasmRunIteration(std::ofstream &profOut, message::Message &call, long num_iterations, const std::string &iteration_name,
              int num_threads, wasm::WAVMWasmModule cachedModule) {
-    auto args = fmt::format("{} {}", num_threads, num_iterations);
+    auto args = fmt::format("{} {} 0", num_threads, num_iterations);
     call.set_cmdline(args.c_str());
 
     const util::TimePoint iterationTp = util::startTimer();
