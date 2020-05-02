@@ -55,7 +55,7 @@ nativeRun(std::ofstream &profOut, const std::string &execPath, long num_iteratio
           int num_threads) {
 
     char buffer [128];
-    sprintf(buffer, "%s %d %ld", execPath.c_str(), num_threads, num_iterations);
+    sprintf(buffer, "%s %d %ld 0", execPath.c_str(), num_threads, num_iterations);
 
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
     int error = system(buffer);

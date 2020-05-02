@@ -7,10 +7,13 @@ OUT_DIR=/usr/bin
 
 .PHONY : all
 
-all : mt_pi docker_benchmarker
+all : mt_pi multi_cr docker_benchmarker
 
 mt_pi: mt_pi.cpp
 	$(CXX) $(CXX_FLAGS) $(OMP_FLAGS) $< -o $(OUT_DIR)/$@
+
+multi_cr: multi_cr.cpp
+	$(CXX) $(CXX_FLAGS) -I. $(OMP_FLAGS) $< -o $(OUT_DIR)/$@
 
 docker_benchmarker: docker_benchmarker.cpp
 	$(CXX) $(CXX_FLAGS) $< -o $(OUT_DIR)/$@
