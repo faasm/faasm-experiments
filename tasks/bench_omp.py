@@ -1,7 +1,12 @@
-import redis
-
 from invoke import task
 from faasmcli.util.call import invoke_imp
+
+import time
+import subprocess
+from subprocess import call, run
+
+import redis
+
 
 @task
 def multi_pi(ctx, number_times=6):
