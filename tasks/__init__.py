@@ -16,7 +16,6 @@ from faasmcli.tasks import ns
 ns.add_collection(data)
 ns.add_collection(experiments)
 ns.add_collection(genomics)
-ns.add_collection(matrix_data)
 
 # Group benchmarking tasks
 bench_ns = Collection("bench")
@@ -41,6 +40,6 @@ try:
     import pyfaasm
     from . import matrix_data
 
-    ns.add_collection(ns.from_module(matrix_data))
+    ns.add_collection(matrix_data)
 except:
     pass
