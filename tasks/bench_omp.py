@@ -1,5 +1,5 @@
 from invoke import task
-from faasmcli.util.call import invoke_imp
+from faasmcli.util.call import invoke_impl
 
 import time
 import subprocess
