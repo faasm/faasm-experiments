@@ -8,7 +8,6 @@ from . import bench_tpt
 from . import data
 from . import experiments
 from . import genomics
-from . import matrix_data
 
 # Include all Faasm tasks
 from faasmcli.tasks import ns
@@ -37,3 +36,11 @@ bench_ns.add_task(bench_mem.print_docker_mem)
 bench_ns.add_task(bench_omp.multi_pi)
 ns.add_collection(bench_ns)
 
+# Can only generate matrix data with things installed
+try:
+    import pyfaasm
+    from . import matrix_data
+
+    ns.add_collection(ns.from_module(matrix_data))
+except:
+    pass
