@@ -63,15 +63,6 @@ inv data.matrix-upload-s3
 inv data.matrix-download-s3
 ```
 
-### Tensorflow
-
-Tensorflow data consists of the model and images. These need to be 
-uploaded to your Faasm instance:
-
-```bash
-inv data.tf-upload data.tf-state
-```
-
 ## SGD Experiment
 
 ```bash
@@ -160,7 +151,7 @@ inv knative.build-native tf image
 inv upload tf image
 
 # -- Upload data (one-off)
-inv data.tf-upload data.tf-state
+inv tf.upload tf.state
 ```
 
 Latency:
