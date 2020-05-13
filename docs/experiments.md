@@ -54,7 +54,7 @@ inv matrix-data.generate-all
 # Direct SCP from local machine
 export HOST=<your_host>
 export HOST_USER=<user_on_your_host>
-scp -r ~/faasm/data/matrix $HOST_USER@$HOST:/home/$HOST_USER/faasm/data
+rsync -r ~/faasm/data/matrix $HOST_USER@$HOST:/home/$HOST_USER/faasm/data
 
 # Upload (note - >4GB)
 inv data.matrix-upload-s3
