@@ -42,11 +42,17 @@ using the `faasmcli` module. So you can set up a virtual env for this project:
 ```
 python3 -m venv venv
 source venv/bin/activate
+```
+
+Or, if you've already got some Python deps installed globally (e.g. in a 
+bare-metal deploy), you can just rely on those.
+
+Then you need to install the Faasm requirements:
+
+```
 cd third-party/faasm/faasmcli
 pip install -r requirements.txt 
 pip install -e .
 ```
 
-Or, if you already have Faasm checked out and Python deps installed globally 
-(e.g. in a bare-metal deploy), you can just rely on those.
 

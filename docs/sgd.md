@@ -17,7 +17,7 @@ inv data.reuters-download-s3
 If running on a remote host you can then move the files:
 
 ```
-scp -r ~/faasm/data <USER>@<HOST>:/home/<USER>/faasm/data
+rsync -r ~/faasm/data <USER>@<HOST>:/home/<USER>/faasm/
 ```
 
 ## State upload
