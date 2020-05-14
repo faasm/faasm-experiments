@@ -3,20 +3,19 @@ from decimal import Decimal
 from os import listdir
 from os.path import join, basename, normpath
 from subprocess import call
-
-from faasmcli.util.env import ANSIBLE_ROOT
+from tasks.util.env import EXPERIMENTS_ANSIBLE_ROOT
 
 
 def _ansible_playbook(playbook_name):
     cmd = [
         "ansible-playbook",
-        "-i inventory/billing.yml",
+        "-i inventory/billing.ini",
         "{}.yml".format(playbook_name)
     ]
 
     cmd_str = " ".join(cmd)
     print(cmd_str)
-    res = call(cmd_str, cwd=ANSIBLE_ROOT, shell=True)
+    res = call(cmd_str, cwd=EXPERIMENTS_ANSIBLE_ROOT, shell=True)
     if res != 0:
         print("Ansible command failed: {}".format(cmd_str))
         raise RuntimeError("Ansible command failed: {}".format(cmd_str))
