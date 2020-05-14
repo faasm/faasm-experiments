@@ -24,3 +24,5 @@ add_subdirectory(src/profiler)
 add_subdirectory(src/polybench)
 add_subdirectory(src/python)
 add_subdirectory(src/sgd)
+add_subdirectory(src/state_tpt)
+

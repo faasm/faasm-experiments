@@ -54,22 +54,13 @@ inv matrix-data.generate-all
 # Direct SCP from local machine
 export HOST=<your_host>
 export HOST_USER=<user_on_your_host>
-scp -r ~/faasm/data/matrix $HOST_USER@$HOST:/home/$HOST_USER/faasm/data
+rsync -r ~/faasm/data/matrix $HOST_USER@$HOST:/home/$HOST_USER/faasm/data
 
 # Upload (note - >4GB)
 inv data.matrix-upload-s3
 
 # Download
 inv data.matrix-download-s3
-```
-
-### Tensorflow
-
-Tensorflow data consists of the model and images. These need to be 
-uploaded to your Faasm instance:
-
-```bash
-inv data.tf-upload data.tf-state
 ```
 
 ## SGD Experiment
@@ -160,7 +151,7 @@ inv knative.build-native tf image
 inv upload tf image
 
 # -- Upload data (one-off)
-inv data.tf-upload data.tf-state
+inv tf.upload tf.state
 ```
 
 Latency:

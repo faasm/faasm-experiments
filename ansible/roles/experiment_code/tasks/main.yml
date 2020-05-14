@@ -1,0 +1,19 @@
+---
+
+- name: "Check out code"
+  git:
+    repo: "{{ remote_url | default('https://github.com/lsds/faasm-experiments.git') }}"
+    dest: "{{ ansible_env.HOME }}/faasm-experiments-bm"
+    version: "{{ repo_version | default('update') }}"
+    update: yes
+
+- name: "Create symbolic link to repo"
+  become: yes
+  file:
+    src: "{{ ansible_env.HOME }}/faasm-experiments-bm"
+    dest: "/usr/local/code/faasm-experiments"
+    state: link
+    force: yes #unlinks other users
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: 0755

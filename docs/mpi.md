@@ -12,13 +12,11 @@ prompt or passwords.
 
 Follow the normal Faasm [bare metal setup](../third-party/faasm/docs/bare_metal.md).
 
-## 2. Install OpenMPI
-
-Run the Ansible playbook:
+Then run the following from the root of _this_ repository:
 
 ```bash
 cd ansible
-ansible-playbook -i inventory/mpi.yml mpi_benchmark.yml
+ansible-playbook -i ../third-party/faasm/ansible/inventory/bare_metal.yml mpi_benchmark.yml
 ```
 
 ## 3. Run native code

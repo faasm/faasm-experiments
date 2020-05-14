@@ -3,5 +3,6 @@
 - hosts: all
   gather_facts: yes
   roles:
+    - experiment_code
     - openmpi
     - prk
