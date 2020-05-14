@@ -234,7 +234,7 @@ class SGDExperimentRunner(InvokeAndWaitRunner):
 
 
 @task
-def sgd(ctx, workers, interval, bm=False, native=False, nobill=False):
+def sgd(ctx, workers, interval, native=False, nobill=False):
     """
     Run SGD experiment
     """
