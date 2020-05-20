@@ -129,25 +129,20 @@ def reuters_state(ctx, host=None, knative=True):
     """
     Upload reuters experiment state
     """
-    _do_reuters_upload(host=host, knative=knative)
-
-
-def _do_reuters_upload(host=None, s3_bucket=None, knative=False):
-    assert host or s3_bucket or knative, "Must give a host, S3 bucket or knative"
     user = "sgd"
 
     host = get_kubernetes_upload_host(knative, host)
 
     # Upload the matrix data
-    upload_sparse_matrix(user, "inputs", _REUTERS_DATA_DIR, host=host, s3_bucket=s3_bucket)
+    upload_sparse_matrix(user, "inputs", _REUTERS_DATA_DIR, host=host)
 
     # Upload the categories data
     cat_path = join(_REUTERS_DATA_DIR, "outputs")
-    upload_binary_state(user, "outputs", cat_path, host=host, s3_bucket=s3_bucket)
+    upload_binary_state(user, "outputs", cat_path, host=host)
 
     # Upload the feature counts
     counts_path = join(_REUTERS_DATA_DIR, "feature_counts")
-    upload_binary_state(user, "feature_counts", counts_path, host=host, s3_bucket=s3_bucket)
+    upload_binary_state(user, "feature_counts", counts_path, host=host)
 
 
 # -------------------------------------------------
