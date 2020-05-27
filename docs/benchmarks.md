@@ -2,7 +2,7 @@
 
 ## Runtimes
 
-For efficiency measurements we want to assess the time taken and resources consumed by several different runtimes. To do this we need to measure the time taken, CPU cycles, peak memory and disk I/O for running a simple function (with a cold start).
+For efficiency measurements we want to assess the time taken and resources consumed by Faasm vs containers. To do this we need to measure the time taken, CPU cycles, peak memory and disk I/O for running a simple function (with a cold start).
 
 Measuring the CPU cycles and time taken can be done with `perf` and `time` respectively (in separate runs). To measure memory footprint we take the footprint of the relevant process and all its descendants. To do this for Docker we need to take the footprint of the docker daemon and all of its child processes, thus capturing the whole cost of running Docker on the host.
 

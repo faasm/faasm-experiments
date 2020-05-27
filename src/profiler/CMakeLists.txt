@@ -15,6 +15,8 @@ set(PROFILER_LIBS
         util
         module_cache
         system
+        emulator
+        faasm
         )
 
 target_link_libraries(profiler ${PROFILER_LIBS})
