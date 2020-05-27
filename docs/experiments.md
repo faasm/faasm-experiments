@@ -5,43 +5,15 @@ that can run `kubectl` and `kn`.
 
 Everything must be cleared away between runs to make sure stuff doesn't bleed across.
 
-## Client Machine Set-up
-
-To run throughput/ latency experiments you'll need to set up the client machine with (on the machine itself):
-
-```bash
-cd ansible
-ansible-playbook load_client.yml
-```
-
-## Billing Estimates
-
-To get resource measurements from the hosts running experiments we first need an inventory file at
-`ansible/inventory/billing.yml`, something like:
-
-```yaml
-[all]
-myhost1
-myhost2
-...
-```
-
-Then we can run the set-up with:
-
-```bash
-cd ansible
-ansible-playbook -i inventory/billing.yml billing_setup.yml
-```
-
 ## Data
 
 Data should be generated and uploaded ahead of time.
 
-### SGD
+### SGD data
 
 For details of the SGD experiment data see `sgd.md` notes.
 
-### Matrices
+### Matrices data
 
 The matrix experiment data needs to be generated in bulk locally, uploaded to S3 then downloaded on the client machine (or directly copied with `scp`). You must have the native tooling and pyfaasm installed to generate it up front (but
 this doesn't need to be done if it's already in S3):
@@ -63,7 +35,7 @@ inv data.matrix-upload-s3
 inv data.matrix-download-s3
 ```
 
-## SGD Experiment
+## SGD experiment
 
 ```bash
 # -- Prepare --
@@ -95,7 +67,10 @@ watch kubectl -n faasm get pods
 # Native SGD
 inv experiments.sgd --native $N_WORKERS 60000
 
-# Wasm SGD
+# Bare metal wasm SGD
+inv experiments.sgd --bm $N_WORKERS 60000
+
+# Knative wasm SGD
 inv experiments.sgd $N_WORKERS 60000
 
 # -- Clean up --

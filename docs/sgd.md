@@ -2,7 +2,8 @@
 
 To use the original Hogwild dataset we must download it and parse it into a Faasm-friendly form.
 
-This can be done once and uploaded to S3 (see below). From then on it can just be downloaded directly from S3 on relevant machines.
+This can be done once and uploaded to S3 (see below). From then on it can just be downloaded directly 
+from S3 on relevant machines.
 
 From there it must be uploaded into the relevant state storage for running the algorithm.
 
@@ -26,31 +27,10 @@ This can put into the relevant state store:
 
 ```
 # Locally (make sure containers are running)
-inv data.reuters-state-upload localhost
+inv data.reuters-state localhost
 
 # K8s
-inv data.reuters-state-upload <k8s_service_host>
-```
-
-## Invoking the function
-
-First make sure the latest function is in place:
-
-```
-inv upload sgd reuters_svm --prebuilt
-```
-
-Clear the worker set if you've restarted the application:
-
-```
-inv redis.clear-queue
-```
-
-Invoke the process with:
-
-```
-# input = number of worker processes to run
-inv invoke sgd reuters_svm --input=10 --poll
+inv data.reuters-state <k8s_service_host>
 ```
 
 ## Native run

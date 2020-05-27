@@ -5,11 +5,9 @@ Repository for holding all experimental/ transient code related to
 
 Each directory contains the experiment and its associated README.
 
-## General set-up
+## Local Set-up
 
-### Faasm
-
-You should set up Faasm for 
+If building and these experiments locally, you should set up Faasm for 
 [local development](https://github.com/lsds/Faasm/blob/master/docs/local_dev.md).
 
 If you already have Faasm checked out, you can do the following:
@@ -34,24 +32,68 @@ git submodule update --init third-party/WAVM
 git submodule update --init third-party/wamr
 ``` 
 
-### Python
+## Remote Set-up
 
-This project adds extra tasks to the existing Faasm CLI, which it imports
-using the `faasmcli` module. So you can set up a virtual env for this project:
+If you're running experiments from a remote client somewhere, you can set it up 
+by creating an inventory file at `ansible/inventory/experiments.ini` that looks
+like:
 
+```ini
+[all]
+<client_host>
 ```
+
+You can then intall the relevant code and deps with:
+
+```bash
+cd ansible
+ansible-playbook -i inventory/experiments.ini experiment_client.yml
+```
+
+From there you should be able to run the set-up described above.
+
+## Python
+
+From your client machine (local or remote), you'll need to run Python tasks. This 
+project adds extra tasks to the existing Faasm CLI.
+
+If running locally you can set up a virtual env for this project:
+
+```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-Or, if you've already got some Python deps installed globally (e.g. in a 
-bare-metal deploy), you can just rely on those.
+Or, if running remotely you can just install the deps locally (especially given 
+they may already be set-up on an existing bare-metal deployment).
 
-Then you need to install the Faasm requirements:
+You then need to set up the Faasm CLI and requirements:
 
-```
+```bash
 cd third-party/faasm/faasmcli
 pip install -r requirements.txt 
 pip install -e .
+
+# Check it's all working
+cd ../../..
+inv -l
 ```
 
+## Billing Estimates
+
+To get resource measurements from the hosts running experiments we need an inventory file that 
+includes all the hosts we want to measure at `ansible/inventory/billing.ini`, something like:
+
+```ini
+[all]
+myhost1
+myhost2
+...
+```
+
+Then we can run the set-up with:
+
+```bash
+cd ansible
+ansible-playbook -i inventory/billing.ini billing_setup.yml
+```
