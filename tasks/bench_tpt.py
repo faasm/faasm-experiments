@@ -117,9 +117,24 @@ def bench_tpt(ctx, runtime=None):
                 target_tpt = Decimal("1") / Decimal(delay)
                 _write_tpt_lat(r, "docker", target_tpt, csv_out, tolerance=5)
 
-        if runtime == "faasm" or runtime is None:
-            # NOTE: both are in microseconds
-            runs = [
+        def _do_faasm_runs(faasm_name, this_runs):
+            for this_delay, this_length in this_runs:
+                # Run the bench
+                this_cmd = " ".join([
+                    join(BENCHMARK_BUILD, "bin", "bench_tpt"),
+                    "warm" if faasm_name == "faasm-warm" else "cold",
+                    this_delay,
+                    this_length,
+                ])
+                _exec_cmd(this_cmd)
+
+                # Write the result
+                this_target_tpt = (Decimal("1000000")) / Decimal(this_delay)
+                _write_tpt_lat(r, faasm_name, this_target_tpt, csv_out)
+
+        if runtime == "faasm-cold" or runtime is None:
+            # NOTE: first number is in microseconds
+            _do_faasm_runs("faasm-cold", [
                 ("10000000", "30000"),
                 ("6000000", "20000"),
                 ("2000000", "15000"),
@@ -133,21 +148,24 @@ def bench_tpt(ctx, runtime=None):
                 ("5000", "10000"),
                 ("1000", "10000"),
                 ("750", "10000"),
-            ]
+            ])
 
-            for delay, runtime_length in runs:
-                # Run the bench
-                cmd = [
-                    join(BENCHMARK_BUILD, "bin", "bench_tpt"),
-                    delay,
-                    runtime_length,
-                ]
-                cmd_str = " ".join(cmd)
-
-                _exec_cmd(cmd_str)
-
-                # Write the result
-                target_tpt = (Decimal("1000000")) / Decimal(delay)
-                _write_tpt_lat(r, "faasm", target_tpt, csv_out)
+        if runtime == "faasm-warm" or runtime is None:
+            # NOTE: first number is in microseconds
+            _do_faasm_runs("faasm-warm", [
+                ("10000000", "30000"),
+                ("6000000", "20000"),
+                ("2000000", "15000"),
+                ("1000000", "15000"),
+                ("500000", "15000"),
+                ("250000", "15000"),
+                ("100000", "10000"),
+                ("50000", "10000"),
+                ("25000", "10000"),
+                ("10000", "10000"),
+                ("5000", "10000"),
+                ("1000", "10000"),
+                ("750", "10000"),
+            ])
 
     csv_out.close()

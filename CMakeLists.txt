@@ -13,6 +13,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Add Faasm self-tracing
 set(FAASM_SELF_TRACING ON)
+add_definitions(-DTRACE_ALL=1)
 
 # Includes
 set(EXPERIMENTS_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)

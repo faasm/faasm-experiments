@@ -12,13 +12,27 @@
 
 
 namespace runner {
+    static bool useZygotes = false;
+    static bool trueNoop = false;
+
+    void setTrueNoops(bool value) {
+        util::getLogger()->info("Setting true noops: {}", value);
+        trueNoop = value;
+    }
+
+    void setUseZygotes(bool value) {
+        util::getLogger()->info("Setting use zygotes: {}", value);
+        useZygotes = value;
+    }
+
     /**
      * Designed to replicate what the real system does when executing functions
      */
-    void benchmarkExecutor(const std::string &user, const std::string &func, bool useZygote) {
+    void benchmarkExecutor(const std::string &user, const std::string &func) {
+        PROF_START(logConfInit)
         const std::shared_ptr<spdlog::logger> &logger = util::getLogger();
-
         util::SystemConfig &conf = util::getSystemConfig();
+        PROF_END(logConfInit)
 
         // Set up network namespace
         if (conf.netNsMode == "on") {
@@ -30,42 +44,33 @@ namespace runner {
         }
 
         if (conf.cgroupMode == "on") {
-            PROF_START(cgroupAdd)
             // Add this thread to the cgroup
             isolation::CGroup cgroup(BASE_CGROUP_NAME);
             cgroup.addCurrentThread();
-            PROF_END(cgroupAdd)
         }
 
-        // Allow python function
+        // Allow python function.
         message::Message m;
         if(user == "python") {
-            m.set_user(PYTHON_USER);
-            m.set_function(PYTHON_FUNC);
+            m = util::messageFactory(PYTHON_USER, PYTHON_FUNC);
             m.set_pythonuser(user);
             m.set_pythonfunction(func);
             m.set_ispython(true);
         } else {
-            m.set_user(user);
-            m.set_function(func);
+            m = util::messageFactory(user, func);
         }
 
-        if(useZygote) {
+        if(useZygotes) {
             logger->info("Executing function {}/{} from zygote", user, func);
-            // This implicitly creates the module if needed
+            // This implicitly creates the zygote if needed
             PROF_START(zygoteCacheLookup)
             module_cache::WasmModuleCache &registry = module_cache::getWasmModuleCache();
             wasm::WAVMWasmModule &snapshot = registry.getCachedModule(m);
             PROF_END(zygoteCacheLookup)
 
             // Copy constructor does the zygote restore
-            PROF_START(zygoteRestore)
             wasm::WAVMWasmModule module = snapshot;
-            PROF_END(zygoteCacheLookup)
-
-            PROF_START(moduleExecuteZygote)
-            module.execute(m);
-            PROF_END(moduleExecuteZygote)
+            module.execute(m, trueNoop);
         } else {
             logger->info("Executing function {}/{} with cold start", user, func);
 
@@ -75,8 +80,10 @@ namespace runner {
             PROF_END(coldStart)
 
             PROF_START(moduleExecuteCold)
-            module.execute(m);
+            module.execute(m, trueNoop);
             PROF_END(moduleExecuteCold)
+
+            module.getFileSystem().tearDown();
         }
     }
 }

@@ -3,5 +3,9 @@
 #include <string>
 
 namespace runner {
-    void benchmarkExecutor(const std::string &user, const std::string &func, bool useZygote);
+    void setTrueNoops(bool value);
+
+    void setUseZygotes(bool value);
+
+    void benchmarkExecutor(const std::string &user, const std::string &func);
 }

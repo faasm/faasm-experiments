@@ -21,9 +21,22 @@ def bench_time(ctx):
         makedirs(RESULT_DIR)
 
     benches = [
-        ("faasm", join(BENCHMARK_BUILD, "bin", "bench_time"), 10000),
-        ("docker", "./bin/docker_noop_time.sh", 10),
-        ("thread", join(BENCHMARK_BUILD, "bin", "thread_bench_time"), 10000),
+        (
+            "faasm-cold",
+            "{} cold".format(join(BENCHMARK_BUILD, "bin", "bench_time")),
+            5000
+        ),
+        (
+            "faasm-warm",
+            "{} warm".format(join(BENCHMARK_BUILD, "bin", "bench_time")),
+            5000
+        ),
+        (
+            "docker",
+            "./bin/docker_noop_time.sh",
+            10
+        ),
+        # ("thread", join(BENCHMARK_BUILD, "bin", "thread_bench_time"), 10000),
     ]
 
     csv_out = open(OUTPUT_FILE, "w")
@@ -33,6 +46,8 @@ def bench_time(ctx):
     for bench_name, cmd, iterations in benches:
         _do_cpu_cycles(bench_name, cmd, iterations, csv_out)
         _do_time(bench_name, cmd, iterations, csv_out)
+
+    print("\nDONE: Output written to {}".format(OUTPUT_FILE))
 
 
 def _exec_cmd(cmd_str):
