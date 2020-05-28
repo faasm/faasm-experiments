@@ -31,7 +31,10 @@ void _execFunction(int requestCount) {
             // Write to tpt file with lock
             util::UniqueLock lock(tptFileMx);
             tptFile << elapsed << " REQUEST " << requestCount << std::endl;
+            tptFile.flush();
         }
+
+        tptFile.close();
     }
 
     const util::TimePoint &start = util::startTimer();
@@ -46,6 +49,7 @@ void _execFunction(int requestCount) {
             // Write to latency file with lock
             util::UniqueLock lock(latFileMx);
             latFile << elapsedMillis << " LATENCY" << std::endl;
+            latFile.flush();
         }
 
         latFile.close();
