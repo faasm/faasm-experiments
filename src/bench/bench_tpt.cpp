@@ -10,31 +10,46 @@
 #define FUNCTION "noop"
 
 static std::mutex latFileMx;
+static std::mutex tptFileMx;
 
 static std::string tptLogFile;
 static std::string latLogFile;
 static std::string durationLogFile;
 
 bool forceNoop = true;
+static util::TimePoint startTimer;
 
 
-void _execFunction() {
-    const util::TimePoint &start = util::startTimer();
+void _execFunction(int requestCount) {
+    if (requestCount > 0) {
+        std::ofstream tptFile;
+        tptFile.open(tptLogFile.c_str(), std::ios_base::app);
+        // Log to throughput file
+        long elapsed = util::getTimeDiffMillis(startTimer);
 
-    runner::benchmarkExecutor(USER, FUNCTION);
-
-    double elapsedMillis = util::getTimeDiffMillis(start);
-
-    std::ofstream latFile;
-    latFile.open(latLogFile.c_str(), std::ios_base::app);
-
-    {
-        // Write to latency file with lock
-        util::UniqueLock lock(latFileMx);
-        latFile << elapsedMillis << " LATENCY" << std::endl;
+        {
+            // Write to tpt file with lock
+            util::UniqueLock lock(tptFileMx);
+            tptFile << elapsed << " REQUEST " << requestCount << std::endl;
+        }
     }
 
-    latFile.close();
+    const util::TimePoint &start = util::startTimer();
+    runner::benchmarkExecutor(USER, FUNCTION);
+    double elapsedMillis = util::getTimeDiffMillis(start);
+
+    if (requestCount > 0) {
+        std::ofstream latFile;
+        latFile.open(latLogFile.c_str(), std::ios_base::app);
+
+        {
+            // Write to latency file with lock
+            util::UniqueLock lock(latFileMx);
+            latFile << elapsedMillis << " LATENCY" << std::endl;
+        }
+
+        latFile.close();
+    }
 }
 
 
@@ -48,7 +63,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Pre-flight
-    _execFunction();
+    _execFunction(-1);
 
     std::string mode(argv[1]);
     bool isWarm;
@@ -75,7 +90,7 @@ int main(int argc, char *argv[]) {
     logger->info("Faasm throughput bench with delay={}ms and duration={}ms", requestDelay, duration);
 
     std::string systemName;
-    if(isWarm) {
+    if (isWarm) {
         systemName = "faasm-warm";
     } else {
         systemName = "faasm-cold";
@@ -93,7 +108,7 @@ int main(int argc, char *argv[]) {
     std::ofstream tptFile;
     tptFile.open(tptLogFile.c_str(), std::ios_base::app);
 
-    const util::TimePoint &startTimer = util::startTimer();
+    startTimer = util::startTimer();
     double elapsed = 0;
     int requestCount = 1;
 
@@ -101,10 +116,7 @@ int main(int argc, char *argv[]) {
 
     while (elapsed < duration) {
         // Spawn execution in background
-        threads.emplace_back(_execFunction);
-
-        // Log to throughput file
-        tptFile << elapsed << " REQUEST " << requestCount << std::endl;
+        threads.emplace_back(_execFunction, requestCount);
         requestCount++;
 
         // Sleep
