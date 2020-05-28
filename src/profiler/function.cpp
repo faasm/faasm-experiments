@@ -8,6 +8,7 @@
 
 #include <util/config.h>
 #include <util/timing.h>
+#include <util/func.h>
 
 
 namespace runner {
@@ -36,10 +37,18 @@ namespace runner {
             PROF_END(cgroupAdd)
         }
 
-        // Set up function call
+        // Allow python function
         message::Message m;
-        m.set_user(user);
-        m.set_function(func);
+        if(user == "python") {
+            m.set_user(PYTHON_USER);
+            m.set_function(PYTHON_FUNC);
+            m.set_pythonuser(user);
+            m.set_pythonfunction(func);
+            m.set_ispython(true);
+        } else {
+            m.set_user(user);
+            m.set_function(func);
+        }
 
         if(useZygote) {
             logger->info("Executing function {}/{} from zygote", user, func);
