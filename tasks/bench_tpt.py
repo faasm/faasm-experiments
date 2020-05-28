@@ -25,7 +25,7 @@ def _numbers_from_file(file_path):
     return values
 
 
-def _write_tpt_lat(run_num, runtime_name, target_tpt, csv_out, tolerance=0):
+def _write_tpt_lat(run_num, runtime_name, target_tpt, csv_out):
     tpt_file = "/tmp/{}_tpt.log".format(runtime_name)
     lat_file = "/tmp/{}_lat.log".format(runtime_name)
     duration_file = "/tmp/{}_duration.log".format(runtime_name)
@@ -37,6 +37,8 @@ def _write_tpt_lat(run_num, runtime_name, target_tpt, csv_out, tolerance=0):
     n_times = len(times)
     n_lats = len(lats)
     n_diff = abs(n_times - n_lats)
+
+    tolerance = int(n_lats * 0.01)
     msg = "Requests and latencies count doesn't match within tolerance ({} vs {})".format(n_times, n_lats)
     assert n_diff <= tolerance, msg
 
@@ -115,7 +117,7 @@ def bench_tpt(ctx, runtime=None):
 
                 # Write the result
                 target_tpt = Decimal("1") / Decimal(delay)
-                _write_tpt_lat(r, "docker", target_tpt, csv_out, tolerance=5)
+                _write_tpt_lat(r, "docker", target_tpt, csv_out)
 
         def _do_faasm_runs(faasm_name, this_runs):
             for this_delay, this_length in this_runs:
