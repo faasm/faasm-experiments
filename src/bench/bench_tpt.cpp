@@ -19,7 +19,7 @@ static std::mutex latFileMx;
 void _execFunction() {
     const util::TimePoint &start = util::startTimer();
 
-    runner::benchmarkExecutor(USER, FUNCTION);
+    runner::benchmarkExecutor(USER, FUNCTION, true);
 
     double elapsedMillis = util::getTimeDiffMillis(start);
 

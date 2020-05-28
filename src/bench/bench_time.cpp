@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Pre-flight
-    runner::benchmarkExecutor(USER, FUNCTION);
+    runner::benchmarkExecutor(USER, FUNCTION, true);
 
     // Get args
     int nIterations = std::stoi(argv[1]);
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < nIterations; i++) {
         logger->info("Running iteration {}", i);
 
-        std::thread t(runner::benchmarkExecutor, USER, FUNCTION);
+        std::thread t(runner::benchmarkExecutor, USER, FUNCTION, true);
         t.join();
     }
 

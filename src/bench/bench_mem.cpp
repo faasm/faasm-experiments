@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     int nWorkers = std::stoi(argv[2]);
 
     // Pre-flight
-    runner::benchmarkExecutor(USER, function);
+    runner::benchmarkExecutor(USER, function, true);
 
     logger->info("Running benchmark on demo/{} with {} workers", function, nWorkers);
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     std::vector<std::thread> threads(nWorkers);
     for (int w = 0; w < nWorkers; w++) {
         logger->info("Running worker {}", w);
-        threads.emplace_back(std::thread(runner::benchmarkExecutor, USER, function));
+        threads.emplace_back(std::thread(runner::benchmarkExecutor, USER, function, true));
     }
 
     // Wait for things to finish

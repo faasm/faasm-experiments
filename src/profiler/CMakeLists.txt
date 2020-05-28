@@ -9,7 +9,7 @@ add_library(profiler
 
 # Faasm internal libs needed for benchmarking/ profiling
 set(PROFILER_LIBS
-        worker_lib
+        faaslet_lib
         wasm
         wavmmodule
         util
