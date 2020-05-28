@@ -25,7 +25,7 @@ git submodule update --init third-party/wamr
 ## Remote Set-up
 
 If you're running experiments from a remote client somewhere, you can set it up 
-by creating an inventory file at `ansible/inventory/experiments.ini` that looks
+by creating an inventory file at `ansible/inventory/benchmark.yml` that looks
 like:
 
 ```ini
@@ -40,7 +40,7 @@ Then intall the relevant code and deps with:
 
 ```bash
 cd ansible
-ansible-playbook -i inventory/experiments.ini experiment_client.yml
+ansible-playbook -i inventory/benchmark.yml experiment_client.yml
 ```
 
 ## Python

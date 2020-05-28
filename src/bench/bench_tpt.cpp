@@ -15,6 +15,9 @@ static std::string tptLogFile;
 static std::string latLogFile;
 static std::string durationLogFile;
 
+bool forceNoop = true;
+
+
 void _execFunction() {
     const util::TimePoint &start = util::startTimer();
 
@@ -61,6 +64,9 @@ int main(int argc, char *argv[]) {
         logger->error("Unrecognised mode: {}", mode);
         exit(1);
     }
+
+    // Set up
+    runner::setTrueNoops(forceNoop);
 
     // Get args
     int requestDelay = std::stoi(argv[2]);

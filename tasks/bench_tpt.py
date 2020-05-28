@@ -71,7 +71,7 @@ def bench_tpt(ctx, runtime=None):
     """
     Run container throughput benchmark
     """
-    repeats = 3
+    repeats = 1
 
     if not exists(RESULT_DIR):
         makedirs(RESULT_DIR)
