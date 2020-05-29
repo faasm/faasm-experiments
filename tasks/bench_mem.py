@@ -110,8 +110,8 @@ def bench_mem(ctx, runtime=None):
         # Note: we need to run the workers over multiple processes to avoid memory allocation issues
         # There MUST be the same number of processes, all with at least one function in
         faasm_worker_chunks = [
-            [1, 1, 1, 1],
             [500, 500, 500, 500],
+            [750, 750, 750, 750],
             [1000, 1000, 1000, 1000]
         ]
 
@@ -119,7 +119,7 @@ def bench_mem(ctx, runtime=None):
         faasm_delays = [
             FAASM_SLEEP_FUNCTION_DURATION_SECS * 0.5,
             FAASM_SLEEP_FUNCTION_DURATION_SECS * 0.6,
-            FAASM_SLEEP_FUNCTION_DURATION_SECS * 0.7,
+            FAASM_SLEEP_FUNCTION_DURATION_SECS * 0.65,
         ]
 
         if runtime == "faasm-warm" or runtime is None:
