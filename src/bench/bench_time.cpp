@@ -3,8 +3,8 @@
 #include <profiler/function.h>
 #include <util/timing.h>
 
-#define USER "demo"
-//#define USER "python"
+//#define USER "demo"
+#define USER "python"
 
 #define FUNCTION "noop"
 
