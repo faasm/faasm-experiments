@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
     // Pre-flight
     logger->info("Pre-flighting demo/{}", function);
-    runner::benchmarkExecutor(USER, function);
+    runner::preflightFunction(USER, function);
 
     logger->info("Running benchmark on demo/{} with {} workers", function, nWorkers);
 

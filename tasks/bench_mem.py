@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from multiprocessing import Process
 from os import makedirs
@@ -10,14 +11,18 @@ from invoke import task
 
 from faasmcli.util.env import PROJ_ROOT, BENCHMARK_BUILD, RESULT_DIR, set_benchmark_env
 from faasmcli.util.memory import get_total_memory_for_pid, get_total_memory_for_pids
-from faasmcli.util.process import get_docker_parent_pids, get_pid_for_name, count_threads_for_name
+from faasmcli.util.process import get_docker_parent_pids, get_pid_for_name, get_all_pids_for_name, \
+    count_threads_for_name
 
 OUTPUT_FILE = join(RESULT_DIR, "runtime-bench-mem.csv")
 FAASM_LOCK_DIR = "/usr/local/faasm/runtime_root/tmp"
 FAASM_LOCK_FILE = join(FAASM_LOCK_DIR, "demo.lock")
 
 FAASM_BATCH_SIZE = 200
-FAASM_SLEEP_TIME = 1
+
+# NOTE - this is the calculation working out how long to let Faasm benchmark run before measuring
+# memory overhead. We need to let it warm up and run for about 50/75% of the time
+FAASM_SLEEP_FUNCTION_DURATION_SECS = 25.0
 
 
 def _exec_cmd(cmd_str):
@@ -85,29 +90,43 @@ def bench_mem(ctx, runtime=None):
     csv_out.write("Runtime,Measure,Value,Workers,ValuePerWorker\n")
 
     for repeat in range(0, 1):
-        def do_faasm_run(faasm_name, this_workers):
+        def do_faasm_run(faasm_name, this_workers, this_delays):
             cmd = " ".join([
                 join(BENCHMARK_BUILD, "bin", "bench_mem"),
                 "warm" if faasm_name == "faasm-warm" else "cold",
                 "sleep_short",
             ])
 
-            # Sleep time here needs to be around 0.5/0.75x the sleep of the process so we catch when everything is up
-            for w in this_workers:
+            for worker_chunks, this_delay in zip(this_workers, this_delays):
                 _run_sleep_bench(
                     faasm_name,
-                    w,
+                    worker_chunks,
                     cmd,
-                    15,
+                    this_delay,
                     "bench_mem",
                     csv_out,
                 )
 
+        # Note: we need to run the workers over multiple processes to avoid memory allocation issues
+        # There MUST be the same number of processes, all with at least one function in
+        faasm_worker_chunks = [
+            # [1, 1, 1, 1],
+            [1250, 1250, 1250, 1250],
+            [2500, 2500, 2500, 2500]
+        ]
+
+        # As we get more threads, need to measure later
+        faasm_delays = [
+            FAASM_SLEEP_FUNCTION_DURATION_SECS * 0.5,
+            FAASM_SLEEP_FUNCTION_DURATION_SECS * 0.75,
+            FAASM_SLEEP_FUNCTION_DURATION_SECS * 0.9,
+        ]
+
         if runtime == "faasm-warm" or runtime is None:
-            do_faasm_run("faasm-warm", [500, 1000, 2000])
+            do_faasm_run("faasm-warm", faasm_worker_chunks, faasm_delays)
 
         if runtime == "faasm-cold" or runtime is None:
-            do_faasm_run("faasm-cold", [500, 1000, 2000])
+            do_faasm_run("faasm-cold", faasm_worker_chunks, faasm_delays)
 
         if runtime == "docker" or runtime is None:
             for n_workers in [100, 200, 300]:
@@ -117,54 +136,79 @@ def bench_mem(ctx, runtime=None):
                 )
 
         if runtime is None:
-            for n_workers in [1000, 2000, 3000]:
-                _run_sleep_bench(
-                    "thread",
-                    n_workers,
-                    join(BENCHMARK_BUILD, "bin", "thread_bench_mem"),
-                    5,
-                    "thread_bench_mem",
-                    csv_out
-                )
+            _run_sleep_bench(
+                "thread",
+                faasm_worker_chunks,
+                join(BENCHMARK_BUILD, "bin", "thread_bench_mem"),
+                5,
+                "thread_bench_mem",
+                csv_out
+            )
 
     print("\nDONE - output written to {}".format(OUTPUT_FILE))
 
 
-def _run_sleep_bench(bench_name, n_workers, cmd, sleep_time, process_name, csv_out):
-    print("BENCH: {} - {} workers".format(bench_name, n_workers))
+def _run_sleep_bench(bench_name, worker_chunks, cmd, measure_delay, process_name, csv_out):
+    total_n_workers = sum(worker_chunks)
+    print("BENCH: {} - {} workers (chunks: {})".format(bench_name, total_n_workers, worker_chunks))
 
-    # Launch the process in the background
-    cmd_str = [
-        cmd,
-        str(n_workers),
-    ]
-    cmd_str = " ".join(cmd_str)
+    start_time = datetime.utcnow()
 
     # Set up environment
     set_benchmark_env()
 
-    # Launch subprocess
-    sleep_proc = Process(target=_exec_cmd, args=[cmd_str])
-    sleep_proc.start()
-    sleep(sleep_time)
+    sleep_procs = []
+    for idx, n_workers in enumerate(worker_chunks):
+        # Build the command
+        cmd_str = [
+            cmd,
+            str(n_workers),
+        ]
+        cmd_str = " ".join(cmd_str)
+        print("RUNNING: " + cmd_str)
 
-    pid = get_pid_for_name(process_name)
-    print("Measuring memory of process {}".format(pid))
-    mem_total = get_total_memory_for_pid(pid)
+        # Launch subprocess
+        sleep_proc = Process(target=_exec_cmd, args=[cmd_str])
+        sleep_proc.start()
+        sleep_procs.append(sleep_proc)
 
-    for label, value in zip(mem_total.get_labels(), mem_total.get_data()):
+        stagger_time = 1.5
+        print("Staggering after {} by {}".format(idx, stagger_time))
+        sleep(1)
+
+    # Wait for everything to get started
+    print("Waiting {}s before measuring".format(measure_delay))
+    sleep(measure_delay)
+
+    pids = get_all_pids_for_name(process_name)
+    if len(pids) != len(sleep_procs):
+        print("ERROR: got {} pids but expected {}".format(len(pids), len(sleep_procs)))
+        exit(1)
+
+    mem_outputs = []
+    for pid in pids:
+        print("Measuring memory of process {}".format(pid))
+        mem_outputs.append(get_total_memory_for_pid(pid))
+
+    for idx, label in enumerate(mem_outputs[0].get_labels()):
+        total_value = sum([m.get_data()[idx] for m in mem_outputs])
+
         csv_out.write("{},{},{},{},{}\n".format(
             bench_name,
             label,
-            value,
-            n_workers,
-            Decimal(value) / n_workers,
+            total_value,
+            total_n_workers,
+            Decimal(total_value) / total_n_workers,
         ))
 
     csv_out.flush()
 
-    # Rejoin the background process
-    sleep_proc.join()
+    # Rejoin the background processes
+    for s in sleep_procs:
+        s.join()
+
+    time_taken = datetime.utcnow() - start_time
+    print("BENCH FINISHED in {}s".format(time_taken.seconds))
 
 
 def _run_function_in_batches(n_total, batch_size, func):

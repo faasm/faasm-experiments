@@ -7,5 +7,7 @@ namespace runner {
 
     void setUseZygotes(bool value);
 
+    void preflightFunction(const std::string &user, const std::string &func);
+
     void benchmarkExecutor(const std::string &user, const std::string &func);
 }

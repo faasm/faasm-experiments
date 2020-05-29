@@ -25,6 +25,31 @@ namespace runner {
         useZygotes = value;
     }
 
+    message::Message messageForFunction(const std::string &user, const std::string &func) {
+        // Allow python function.
+        message::Message m;
+        if(user == "python") {
+            m = util::messageFactory(PYTHON_USER, PYTHON_FUNC);
+            m.set_pythonuser(user);
+            m.set_pythonfunction(func);
+            m.set_ispython(true);
+        } else {
+            m = util::messageFactory(user, func);
+        }
+
+        return m;
+    }
+
+    /**
+     * Preflight
+     */
+    void preflightFunction(const std::string &user, const std::string &func) {
+        message::Message m = messageForFunction(user, func);
+        
+        wasm::WAVMWasmModule module;
+        module.bindToFunction(m);
+    }
+
     /**
      * Designed to replicate what the real system does when executing functions
      */
@@ -50,16 +75,8 @@ namespace runner {
         }
 
         // Allow python function.
-        message::Message m;
-        if(user == "python") {
-            m = util::messageFactory(PYTHON_USER, PYTHON_FUNC);
-            m.set_pythonuser(user);
-            m.set_pythonfunction(func);
-            m.set_ispython(true);
-        } else {
-            m = util::messageFactory(user, func);
-        }
-
+        message::Message m = messageForFunction(user, func);
+        
         if(useZygotes) {
             logger->info("Executing function {}/{} from zygote", user, func);
             // This implicitly creates the zygote if needed
