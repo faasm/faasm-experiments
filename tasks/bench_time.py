@@ -13,37 +13,43 @@ OUTPUT_FILE = join(RESULT_DIR, "runtime-bench-time.csv")
 
 
 @task
-def bench_time(ctx):
+def bench_time(ctx, runtime=None):
     """
     Run timing benchmark
     """
     if not exists(RESULT_DIR):
         makedirs(RESULT_DIR)
 
-    benches = [
-        (
-            "faasm-cold",
+    benches = {
+        "faasm-cold": [
             "{} cold".format(join(BENCHMARK_BUILD, "bin", "bench_time")),
             5000
-        ),
-        (
-            "faasm-warm",
+        ],
+        "faasm-warm": [
             "{} warm".format(join(BENCHMARK_BUILD, "bin", "bench_time")),
             5000
-        ),
-        (
-            "docker",
+        ],
+        "docker": [
             "./bin/docker_noop_time.sh",
             10
-        ),
+        ],
         # ("thread", join(BENCHMARK_BUILD, "bin", "thread_bench_time"), 10000),
-    ]
+    }
+
+    if runtime:
+        bench_names = [runtime]
+    else:
+        bench_names = benches.keys()
 
     csv_out = open(OUTPUT_FILE, "w")
     csv_out.write(
         "Runtime,Measure,Value,Iterations,ValuePerIteration\n")
 
-    for bench_name, cmd, iterations in benches:
+    for bench_name in bench_names:
+        bench_details = benches[bench_name]
+        cmd = bench_details[0]
+        iterations = bench_details[1]
+
         _do_cpu_cycles(bench_name, cmd, iterations, csv_out)
         _do_time(bench_name, cmd, iterations, csv_out)
 
