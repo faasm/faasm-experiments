@@ -2,8 +2,13 @@
 
 set -e
 
+USAGE="Must provide a mode (cold/ warm) and number of workers"
 if [ -z "$1" ]; then
-    echo "Must provide a number of workers"
+    echo ${USAGE}
+    exit 1
+fi
+if [ -z "$2" ]; then
+    echo ${USAGE}
     exit 1
 fi
 
@@ -16,7 +21,7 @@ MODE=$1
 
 spawn_script="${HOME}/faasm/bench/bin/bench_mem ${MODE} sleep_long"
 
-n_threads=$1
+n_threads=$2
 batch_size=1000
 
 n_batches=$(( n_threads / batch_size ))
