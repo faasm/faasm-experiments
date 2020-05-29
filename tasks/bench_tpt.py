@@ -8,6 +8,8 @@ from invoke import task
 
 from faasmcli.util.env import RESULT_DIR, PROJ_ROOT, set_benchmark_env, BENCHMARK_BUILD
 
+from tasks.util.env import EXPERIMENTS_ROOT
+
 OUTPUT_FILE = join(RESULT_DIR, "runtime-bench-tpt.csv")
 
 
@@ -106,7 +108,7 @@ def bench_tpt(ctx, runtime=None):
             for delay, runtime_length in runs:
                 # Run the bench
                 cmd = [
-                    join(PROJ_ROOT, "bin", "docker_tpt.sh"),
+                    join(EXPERIMENTS_ROOT, "bin", "docker_tpt.sh"),
                     delay,
                     runtime_length,
                 ]

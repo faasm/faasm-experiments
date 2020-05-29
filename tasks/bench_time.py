@@ -8,6 +8,8 @@ from invoke import task
 
 from faasmcli.util.env import PROJ_ROOT, BENCHMARK_BUILD, RESULT_DIR, set_benchmark_env
 
+from tasks.util.env import EXPERIMENTS_ROOT
+
 TIME_BINARY = "/usr/bin/time"
 OUTPUT_FILE = join(RESULT_DIR, "runtime-bench-time.csv")
 
@@ -63,7 +65,7 @@ def bench_time(ctx, runtime=None):
 def _exec_cmd(cmd_str):
     print(cmd_str)
     set_benchmark_env()
-    ret_code = call(cmd_str, shell=True, cwd=PROJ_ROOT)
+    ret_code = call(cmd_str, shell=True, cwd=EXPERIMENTS_ROOT)
 
     if ret_code != 0:
         raise RuntimeError("Command failed: {}".format(ret_code))

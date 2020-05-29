@@ -14,6 +14,8 @@ from faasmcli.util.memory import get_total_memory_for_pid, get_total_memory_for_
 from faasmcli.util.process import get_docker_parent_pids, get_pid_for_name, get_all_pids_for_name, \
     count_threads_for_name
 
+from tasks.util.env import EXPERIMENTS_ROOT
+
 OUTPUT_FILE = join(RESULT_DIR, "runtime-bench-mem.csv")
 FAASM_LOCK_DIR = "/usr/local/faasm/runtime_root/tmp"
 FAASM_LOCK_FILE = join(FAASM_LOCK_DIR, "demo.lock")
@@ -228,7 +230,7 @@ def _start_docker_mem(n_workers, network):
     def _do_docker_mem(n):
         start_cmd = "./bin/docker_mem_start.sh {} {}".format(network, n)
         print("Kicking off Docker batch size {} on network {}".format(n, network))
-        start_ret_code = call(start_cmd, shell=True, cwd=PROJ_ROOT)
+        start_ret_code = call(start_cmd, shell=True, cwd=EXPERIMENTS_ROOT)
         if start_ret_code != 0:
             raise RuntimeError("Start Docker benchmark failed")
 
@@ -258,7 +260,7 @@ def _run_docker_bench(n_workers, csv_out):
 
 def _stop_docker_mem():
     end_cmd = "./bin/docker_mem_end.sh"
-    end_ret_code = call(end_cmd, shell=True, cwd=PROJ_ROOT)
+    end_ret_code = call(end_cmd, shell=True, cwd=EXPERIMENTS_ROOT)
     if end_ret_code != 0:
         raise RuntimeError("Ending Docker benchmark failed")
 
