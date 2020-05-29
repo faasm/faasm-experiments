@@ -99,8 +99,6 @@ namespace runner {
             PROF_START(moduleExecuteCold)
             module.execute(m, trueNoop);
             PROF_END(moduleExecuteCold)
-
-            module.getFileSystem().tearDown();
         }
     }
 }
