@@ -23,11 +23,11 @@ def bench_time(ctx, runtime=None):
     benches = {
         "faasm-cold": [
             "{} cold".format(join(BENCHMARK_BUILD, "bin", "bench_time")),
-            5000
+            100
         ],
         "faasm-warm": [
             "{} warm".format(join(BENCHMARK_BUILD, "bin", "bench_time")),
-            5000
+            2000
         ],
         "docker": [
             "./bin/docker_noop_time.sh noop",
