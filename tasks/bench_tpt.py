@@ -73,7 +73,7 @@ def bench_tpt(ctx, runtime=None):
     """
     Run container throughput benchmark
     """
-    repeats = 1
+    repeats = 5
 
     if not exists(RESULT_DIR):
         makedirs(RESULT_DIR)
@@ -101,7 +101,6 @@ def bench_tpt(ctx, runtime=None):
                 ("0.75", "15000"),
                 ("0.5", "15000"),
                 ("0.25", "15000"),
-                ("0.15", "15000"),
             ]
 
             for delay, runtime_length in runs:
@@ -148,6 +147,7 @@ def bench_tpt(ctx, runtime=None):
                 ("25000", "10000"),
                 ("10000", "10000"),
                 ("5000", "10000"),
+                ("2500", "10000"),
                 ("1000", "10000"),
                 ("750", "10000"),
             ])
@@ -166,11 +166,10 @@ def bench_tpt(ctx, runtime=None):
                 ("25000", "10000"),
                 ("10000", "10000"),
                 ("5000", "10000"),
+                ("2500", "10000"),
                 ("1000", "10000"),
-                ("750", "10000"),
                 ("500", "10000"),
                 ("250", "10000"),
-                ("125", "10000"),
                 ("125", "10000"),
                 ("75", "10000"),
                 ("50", "10000"),
