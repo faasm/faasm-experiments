@@ -109,6 +109,10 @@ sudo ln -s $HOME/faasm /root/faasm
 
 # Run the benchmark as root
 sudo su
+
+# Change limit of open files (needs to be high)
+ulimit -n 30000
+
 cd /usr/local/code/faasm
 source workon.sh
 cd ../faasm-experiments
