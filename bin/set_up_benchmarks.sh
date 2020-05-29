@@ -36,5 +36,6 @@ pushd /usr/local/code/faasm-experiments/third-party/faasm
 
 # Build docker image
 docker build -t faasm/noop -f docker/noop.dockerfile .
+docker build -t faasm/pynoop -f docker/pynoop.dockerfile .
 
 popd

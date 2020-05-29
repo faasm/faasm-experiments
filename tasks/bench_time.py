@@ -30,7 +30,11 @@ def bench_time(ctx, runtime=None):
             5000
         ],
         "docker": [
-            "./bin/docker_noop_time.sh",
+            "./bin/docker_noop_time.sh noop",
+            10
+        ],
+        "dockerpy": [
+            "./bin/docker_noop_time.sh pynoop",
             10
         ],
         # ("thread", join(BENCHMARK_BUILD, "bin", "thread_bench_time"), 10000),
