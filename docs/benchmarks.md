@@ -109,7 +109,9 @@ sudo ln -s $HOME/faasm /root/faasm
 
 # Run the benchmark as root
 sudo su
+cd /usr/local/code/faasm
 source workon.sh
+cd ../faasm-experiments
 inv bench.mem
 ```
 

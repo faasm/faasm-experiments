@@ -85,18 +85,29 @@ def bench_mem(ctx, runtime=None):
     csv_out.write("Runtime,Measure,Value,Workers,ValuePerWorker\n")
 
     for repeat in range(0, 1):
-        if runtime == "faasm" or runtime is None:
+        def do_faasm_run(faasm_name, this_workers):
+            cmd = " ".join([
+                join(BENCHMARK_BUILD, "bin", "bench_mem"),
+                "warm" if faasm_name == "faasm-warm" else "cold",
+                "sleep_short",
+            ])
 
             # Sleep time here needs to be around 0.5/0.75x the sleep of the process so we catch when everything is up
-            for n_workers in [500, 1000, 2000]:
+            for w in this_workers:
                 _run_sleep_bench(
-                    "faasm",
-                    n_workers,
-                    "{} {}".format(join(BENCHMARK_BUILD, "bin", "bench_mem"), "sleep_short"),
+                    faasm_name,
+                    w,
+                    cmd,
                     15,
                     "bench_mem",
                     csv_out,
                 )
+
+        if runtime == "faasm-warm" or runtime is None:
+            do_faasm_run("faasm-warm", [500, 1000, 2000])
+
+        if runtime == "faasm-cold" or runtime is None:
+            do_faasm_run("faasm-cold", [500, 1000, 2000])
 
         if runtime == "docker" or runtime is None:
             for n_workers in [100, 200, 300]:
@@ -115,6 +126,8 @@ def bench_mem(ctx, runtime=None):
                     "thread_bench_mem",
                     csv_out
                 )
+
+    print("\nDONE - output written to {}".format(OUTPUT_FILE))
 
 
 def _run_sleep_bench(bench_name, n_workers, cmd, sleep_time, process_name, csv_out):
