@@ -176,3 +176,7 @@ inv experiments.tf-lat-pull-results <user> <host>
 # Inference throughput
 inv experiments.tf-tpt-pull-results <user> <host>
 ```
+
+This pulls the results to `~/faasm/<user>_<func>` on your local machine (e.g. `~/faasm/tf_image`).
+The raw data will be held in a directory per experiment, the format will vary from experiment 
+to experiment. These directories can then be iterated over and processed.  
