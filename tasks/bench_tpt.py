@@ -8,6 +8,8 @@ from invoke import task
 
 from faasmcli.util.env import RESULT_DIR, PROJ_ROOT, set_benchmark_env, BENCHMARK_BUILD
 
+from tasks.util.env import EXPERIMENTS_ROOT
+
 OUTPUT_FILE = join(RESULT_DIR, "runtime-bench-tpt.csv")
 
 
@@ -25,7 +27,7 @@ def _numbers_from_file(file_path):
     return values
 
 
-def _write_tpt_lat(run_num, runtime_name, target_tpt, csv_out, tolerance=0):
+def _write_tpt_lat(run_num, runtime_name, target_tpt, csv_out):
     tpt_file = "/tmp/{}_tpt.log".format(runtime_name)
     lat_file = "/tmp/{}_lat.log".format(runtime_name)
     duration_file = "/tmp/{}_duration.log".format(runtime_name)
@@ -37,6 +39,8 @@ def _write_tpt_lat(run_num, runtime_name, target_tpt, csv_out, tolerance=0):
     n_times = len(times)
     n_lats = len(lats)
     n_diff = abs(n_times - n_lats)
+
+    tolerance = int(n_lats * 0.01)
     msg = "Requests and latencies count doesn't match within tolerance ({} vs {})".format(n_times, n_lats)
     assert n_diff <= tolerance, msg
 
@@ -71,7 +75,7 @@ def bench_tpt(ctx, runtime=None):
     """
     Run container throughput benchmark
     """
-    repeats = 3
+    repeats = 5
 
     if not exists(RESULT_DIR):
         makedirs(RESULT_DIR)
@@ -99,13 +103,12 @@ def bench_tpt(ctx, runtime=None):
                 ("0.75", "15000"),
                 ("0.5", "15000"),
                 ("0.25", "15000"),
-                ("0.15", "15000"),
             ]
 
             for delay, runtime_length in runs:
                 # Run the bench
                 cmd = [
-                    join(PROJ_ROOT, "bin", "docker_tpt.sh"),
+                    join(EXPERIMENTS_ROOT, "bin", "docker_tpt.sh"),
                     delay,
                     runtime_length,
                 ]
@@ -115,11 +118,26 @@ def bench_tpt(ctx, runtime=None):
 
                 # Write the result
                 target_tpt = Decimal("1") / Decimal(delay)
-                _write_tpt_lat(r, "docker", target_tpt, csv_out, tolerance=5)
+                _write_tpt_lat(r, "docker", target_tpt, csv_out)
 
-        if runtime == "faasm" or runtime is None:
-            # NOTE: both are in microseconds
-            runs = [
+        def _do_faasm_runs(faasm_name, this_runs):
+            for this_delay, this_length in this_runs:
+                # Run the bench
+                this_cmd = " ".join([
+                    join(BENCHMARK_BUILD, "bin", "bench_tpt"),
+                    "warm" if faasm_name == "faasm-warm" else "cold",
+                    this_delay,
+                    this_length,
+                ])
+                _exec_cmd(this_cmd)
+
+                # Write the result
+                this_target_tpt = (Decimal("1000000")) / Decimal(this_delay)
+                _write_tpt_lat(r, faasm_name, this_target_tpt, csv_out)
+
+        if runtime == "faasm-cold" or runtime is None:
+            # NOTE: first number is in microseconds
+            _do_faasm_runs("faasm-cold", [
                 ("10000000", "30000"),
                 ("6000000", "20000"),
                 ("2000000", "15000"),
@@ -131,23 +149,33 @@ def bench_tpt(ctx, runtime=None):
                 ("25000", "10000"),
                 ("10000", "10000"),
                 ("5000", "10000"),
+                ("2500", "10000"),
                 ("1000", "10000"),
                 ("750", "10000"),
-            ]
+            ])
 
-            for delay, runtime_length in runs:
-                # Run the bench
-                cmd = [
-                    join(BENCHMARK_BUILD, "bin", "bench_tpt"),
-                    delay,
-                    runtime_length,
-                ]
-                cmd_str = " ".join(cmd)
-
-                _exec_cmd(cmd_str)
-
-                # Write the result
-                target_tpt = (Decimal("1000000")) / Decimal(delay)
-                _write_tpt_lat(r, "faasm", target_tpt, csv_out)
+        if runtime == "faasm-warm" or runtime is None:
+            # NOTE: first number is in microseconds
+            _do_faasm_runs("faasm-warm", [
+                ("10000000", "30000"),
+                ("6000000", "20000"),
+                ("2000000", "15000"),
+                ("1000000", "15000"),
+                ("500000", "15000"),
+                ("250000", "15000"),
+                ("100000", "10000"),
+                ("50000", "10000"),
+                ("25000", "10000"),
+                ("10000", "10000"),
+                ("5000", "10000"),
+                ("2500", "10000"),
+                ("1000", "10000"),
+                ("500", "10000"),
+                ("250", "10000"),
+                ("125", "10000"),
+                ("75", "10000"),
+                ("50", "10000"),
+                ("25", "10000"),
+            ])
 
     csv_out.close()

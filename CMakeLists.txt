@@ -7,16 +7,26 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(EXPERIMENTS_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+# Add Faasm self-tracing
+set(FAASM_SELF_TRACING ON)
+add_definitions(-DTRACE_ALL=1)
+
+# Includes
+set(EXPERIMENTS_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(
         ${EXPERIMENTS_INCLUDE_DIR}
         third-party/faasm/include
         ${CMAKE_CURRENT_BINARY_DIR}/third-party/faasm/src # Required for protobuf
 )
 
+# Faasm code
 add_subdirectory(third-party/faasm)
 
+# Targets from this repo
 add_subdirectory(src/bench)
 add_subdirectory(src/capacity)
 add_subdirectory(src/omp)

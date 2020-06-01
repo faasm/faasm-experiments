@@ -8,37 +8,64 @@ from invoke import task
 
 from faasmcli.util.env import PROJ_ROOT, BENCHMARK_BUILD, RESULT_DIR, set_benchmark_env
 
+from tasks.util.env import EXPERIMENTS_ROOT
+
 TIME_BINARY = "/usr/bin/time"
 OUTPUT_FILE = join(RESULT_DIR, "runtime-bench-time.csv")
 
 
 @task
-def bench_time(ctx):
+def bench_time(ctx, runtime=None):
     """
     Run timing benchmark
     """
     if not exists(RESULT_DIR):
         makedirs(RESULT_DIR)
 
-    benches = [
-        ("faasm", join(BENCHMARK_BUILD, "bin", "bench_time"), 10000),
-        ("docker", "./bin/docker_noop_time.sh", 10),
-        ("thread", join(BENCHMARK_BUILD, "bin", "thread_bench_time"), 10000),
-    ]
+    benches = {
+        "faasm-cold": [
+            "{} cold".format(join(BENCHMARK_BUILD, "bin", "bench_time")),
+            100
+        ],
+        "faasm-warm": [
+            "{} warm".format(join(BENCHMARK_BUILD, "bin", "bench_time")),
+            2000
+        ],
+        "docker": [
+            "./bin/docker_noop_time.sh noop",
+            10
+        ],
+        "dockerpy": [
+            "./bin/docker_noop_time.sh pynoop",
+            10
+        ],
+        # ("thread", join(BENCHMARK_BUILD, "bin", "thread_bench_time"), 10000),
+    }
+
+    if runtime:
+        bench_names = [runtime]
+    else:
+        bench_names = benches.keys()
 
     csv_out = open(OUTPUT_FILE, "w")
     csv_out.write(
         "Runtime,Measure,Value,Iterations,ValuePerIteration\n")
 
-    for bench_name, cmd, iterations in benches:
+    for bench_name in bench_names:
+        bench_details = benches[bench_name]
+        cmd = bench_details[0]
+        iterations = bench_details[1]
+
         _do_cpu_cycles(bench_name, cmd, iterations, csv_out)
         _do_time(bench_name, cmd, iterations, csv_out)
+
+    print("\nDONE: Output written to {}".format(OUTPUT_FILE))
 
 
 def _exec_cmd(cmd_str):
     print(cmd_str)
     set_benchmark_env()
-    ret_code = call(cmd_str, shell=True, cwd=PROJ_ROOT)
+    ret_code = call(cmd_str, shell=True, cwd=EXPERIMENTS_ROOT)
 
     if ret_code != 0:
         raise RuntimeError("Command failed: {}".format(ret_code))

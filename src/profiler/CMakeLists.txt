@@ -9,12 +9,14 @@ add_library(profiler
 
 # Faasm internal libs needed for benchmarking/ profiling
 set(PROFILER_LIBS
-        worker_lib
+        faaslet_lib
         wasm
         wavmmodule
         util
         module_cache
         system
+        emulator
+        faasm
         )
 
 target_link_libraries(profiler ${PROFILER_LIBS})

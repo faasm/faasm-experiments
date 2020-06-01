@@ -1,5 +1,5 @@
 set(runner_libs
-        worker_lib
+        faaslet_lib
         wasm
         wavmmodule
         util

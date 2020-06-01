@@ -3,26 +3,16 @@
 Repository for holding all experimental/ transient code related to 
 [Faasm](https://github.com/lsds/Faasm.git).
 
-Each directory contains the experiment and its associated README.
+Docs on specific experiments are held in the relevant subfolders. 
+
+This code assumes you have Faasm checked out at `/usr/local/code/faasm`, and it 
+is symlinked as such from `third-party/faasm`. If you have Faasm checked out 
+elsewhere, just change the symlink.
 
 ## Local Set-up
 
 If building and these experiments locally, you should set up Faasm for 
 [local development](https://github.com/lsds/Faasm/blob/master/docs/local_dev.md).
-
-If you already have Faasm checked out, you can do the following:
-
-```bash
-cd third-party/
-rm -r faasm
-ln -s <path_to_faasm> faasm
-```
-
-Or, you can use the submodule in this directory:
-
-```bash
-git submodule update --init
-```
 
 You must then make sure WAVM and WAMR are up to date:
 
@@ -35,7 +25,7 @@ git submodule update --init third-party/wamr
 ## Remote Set-up
 
 If you're running experiments from a remote client somewhere, you can set it up 
-by creating an inventory file at `ansible/inventory/experiments.ini` that looks
+by creating an inventory file at `ansible/inventory/benchmark.yml` that looks
 like:
 
 ```ini
@@ -43,31 +33,25 @@ like:
 <client_host>
 ```
 
-You can then intall the relevant code and deps with:
+You then need to SSH onto the host and make sure Faasm is checked out at 
+`/usr/local/code/faasm`:
+
+Then intall the relevant code and deps with:
 
 ```bash
 cd ansible
-ansible-playbook -i inventory/experiments.ini experiment_client.yml
+ansible-playbook -i inventory/benchmark.yml experiment_client.yml
 ```
-
-From there you should be able to run the set-up described above.
 
 ## Python
 
-From your client machine (local or remote), you'll need to run Python tasks. This 
-project adds extra tasks to the existing Faasm CLI.
+From your client machine (local or remote), you'll need to run Python tasks.
+This project adds extra tasks to the existing Faasm CLI.
 
-If running locally you can set up a virtual env for this project:
+You can either set up a new virtual env for this project, or use the existing
+Faasm CLI environment from your Faasm checkout (via `source workon.sh`). 
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-Or, if running remotely you can just install the deps locally (especially given 
-they may already be set-up on an existing bare-metal deployment).
-
-You then need to set up the Faasm CLI and requirements:
+You then need to make sure all the python deps are installed:
 
 ```bash
 cd third-party/faasm/faasmcli
@@ -81,8 +65,9 @@ inv -l
 
 ## Billing Estimates
 
-To get resource measurements from the hosts running experiments we need an inventory file that 
-includes all the hosts we want to measure at `ansible/inventory/billing.ini`, something like:
+To get resource measurements from the hosts running experiments we need an
+inventory file that includes all the hosts we want to measure at
+`ansible/inventory/billing.ini`, something like:
 
 ```ini
 [all]
