@@ -4,7 +4,7 @@
   git:
     repo: "{{ remote_url | default('https://github.com/lsds/faasm-experiments.git') }}"
     dest: "{{ ansible_env.HOME }}/faasm-experiments-bm"
-    version: "{{ repo_version | default('benchmarks') }}"
+    version: "{{ repo_version | default('master') }}"
     update: yes
 
 - name: "Create symbolic link to repo"
