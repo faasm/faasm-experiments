@@ -52,10 +52,10 @@ inv upload sgd reuters_svm
 export N_WORKERS=10
 
 # Native containers
-inv knative.deploy-native sgd reuters_svm $N_WORKERS
+inv knative.deploy-native sgd reuters_svm --replicas=$N_WORKERS
 
 # Wasm
-inv knative.deploy $N_WORKERS
+inv knative.deploy --replicas=$N_WORKERS
 
 # -- Wait --
 
@@ -94,10 +94,10 @@ export N_WORKERS=<number of workers>
 # -- Deploy --
 
 # Native
-inv knative.deploy-native-python $N_WORKERS
+inv knative.deploy-native-python --replicas=$N_WORKERS
 
 # Wasm
-inv knative.deploy $N_WORKERS
+inv knative.deploy --replicas=$N_WORKERS
 
 # -- Run experiment --
 
@@ -133,8 +133,8 @@ Latency:
 
 ```bash
 # -- Deploy both (note small number of workers) --
-inv knative.deploy-native tf image 1
-inv knative.deploy 1
+inv knative.deploy --replicas=1
+inv knative.deploy-native tf image --replicas=1
 
 # -- Run experiment --
 inv experiments.tf-lat
@@ -145,10 +145,10 @@ Throughput:
 ```bash
 # -- Deploy --
 # Native
-inv knative.deploy-native tf image 30
+inv knative.deploy-native tf image --replicas=30
 
 # Wasm
-inv knative.deploy 18
+inv knative.deploy --replicas=18
 
 # -- Run experiment --
 
