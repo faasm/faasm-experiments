@@ -425,7 +425,7 @@ def tf_lat(ctx):
 
 
 @task
-def tf_tpt(ctx, native=False, nobill=False):
+def tf_tpt(ctx, native=False, nobill=True):
     """
     Run TF throughput experiment
     """
@@ -438,13 +438,13 @@ def tf_tpt(ctx, native=False, nobill=False):
         (5000, 120),
         (3000, 100),
         (2000, 100),
-        # (1000, 100),
-        # (800, 80),
-        # (600, 80),
-        # (400, 60),
-        # (200, 60),
-        # (100, 60),
-        # (0, 60),
+        (1000, 100),
+        (800, 80),
+        (600, 80),
+        (400, 60),
+        (200, 60),
+        (100, 60),
+        (50, 60),
     ]
 
     # Different cold start intervals
