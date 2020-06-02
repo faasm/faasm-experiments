@@ -155,7 +155,7 @@ inv knative.deploy --replicas=18
 # Native 
 inv experiments.tf-tpt --native
 
-# Wasm latency
+# Wasm
 inv experiments.tf-tpt
 ```
 

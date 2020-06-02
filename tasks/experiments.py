@@ -431,21 +431,33 @@ def tf_tpt(ctx, native=False, nobill=True):
     """
 
     # Runs with delay, duration
-    runs = [
-        (30000, 180),
-        (20000, 160),
-        (10000, 140),
-        (5000, 120),
-        (3000, 100),
-        (2000, 100),
-        (1000, 100),
-        (800, 80),
-        (600, 80),
-        (400, 60),
-        (200, 60),
-        (100, 60),
-        (50, 60),
-    ]
+    if native:
+        runs = [
+            (30000, 180),
+            (20000, 160),
+            (10000, 140),
+            (5000, 120),
+            (3000, 100),
+            (2000, 100),
+            (1000, 100),
+        ]
+    else:
+        runs = [
+            (30000, 180),
+            (20000, 160),
+            (10000, 140),
+            (5000, 120),
+            (3000, 100),
+            (2000, 100),
+            (1000, 100),
+            (800, 80),
+            (600, 80),
+            (400, 60),
+            (200, 60),
+            (100, 60),
+            (50, 60),
+            (25, 60),
+        ]
 
     # Different cold start intervals
     cold_start_intervals = [5, 10, 20, 40, 80] if native else [500]
@@ -507,7 +519,7 @@ def tf_lat_pull_results(ctx, user, host):
 
 
 @task
-def tf_tpt_pull_results(ctx, user, host, nobill=False):
+def tf_tpt_pull_results(ctx, user, host, nobill=True):
     """
     Pull results for TF throughput experiment
     """
