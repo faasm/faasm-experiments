@@ -39,8 +39,11 @@ inv data.matrix-download-s3
 
 ```bash
 # -- Prepare --
-# Upload data (one off)
+# Full mode 
 inv data.reuters-state
+
+# Micro mode
+inv data.reuters-state --micro
 
 # -- Build/ upload --
 inv knative.build-native sgd reuters_svm
@@ -64,14 +67,17 @@ watch kubectl -n faasm get pods
 
 # -- Run experiment --
 
-# Native SGD
+# Native
 inv experiments.sgd --native $N_WORKERS 60000
 
-# Bare metal wasm SGD
+# Bare metal wasm
 inv experiments.sgd --bm $N_WORKERS 60000
 
-# Knative wasm SGD
+# Knative wasm - full
 inv experiments.sgd $N_WORKERS 60000
+
+# Knative wasm - micro
+inv experiments.sgd $N_WORKERS 60000 --micro
 
 # -- Clean up --
 
