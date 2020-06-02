@@ -48,11 +48,13 @@ _ALL_REUTERS_STATE_KEYS = [
 # -------------------------------------------------
 
 @task
-def reuters_upload_s3(ctx):
+def reuters_upload_s3(ctx, micro=True):
     """
     Upload data for the reuters experiment to S3
     """
-    _do_s3_upload(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+    if not micro:
+        _do_s3_upload(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+        
     _do_s3_upload(_REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME)
 
 
@@ -87,11 +89,14 @@ def _do_s3_upload(tar_path, tar_dir, tar_name):
 
 
 @task
-def reuters_download_s3(ctx):
+def reuters_download_s3(ctx, micro=True):
     """
     Download data for the reuters experiment from S3
     """
-    _do_s3_download(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+    if not micro:
+        _do_s3_download(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+
+    _do_s3_download(_REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME)
 
 
 @task
