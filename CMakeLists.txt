@@ -20,6 +20,7 @@ set(EXPERIMENTS_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(
         ${EXPERIMENTS_INCLUDE_DIR}
         third-party/faasm/include
+        third-party/faasm/libs/cpp
         ${CMAKE_CURRENT_BINARY_DIR}/third-party/faasm/src # Required for protobuf
 )
 

@@ -5,7 +5,8 @@ To use the original Hogwild dataset we must download it and parse it into a Faas
 This can be done once and uploaded to S3 (see below). From then on it can just be downloaded directly 
 from S3 on relevant machines.
 
-From there it must be uploaded into the relevant state storage for running the algorithm.
+From there it must be uploaded into the relevant state storage for running the algorithm
+(see the experiment notes).
 
 ## Downloading from S3
 
@@ -19,18 +20,6 @@ If running on a remote host you can then move the files:
 
 ```
 rsync -r ~/faasm/data <USER>@<HOST>:/home/<USER>/faasm/
-```
-
-## State upload
-
-This can put into the relevant state store:
-
-```
-# Locally (make sure containers are running)
-inv data.reuters-state localhost
-
-# K8s
-inv data.reuters-state <k8s_service_host>
 ```
 
 ## Native run
@@ -53,7 +42,7 @@ cd /usr/local/code/hogwild
 ./bin/svm_data
 
 # Parse (run from build dir for this repo)
-./bin/reuters_parse
+./bin/reuters
 
 # Upload data from ~/faasm/data/reuters
 inv data.reuters-upload-s3

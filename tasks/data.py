@@ -22,6 +22,11 @@ _REUTERS_TAR_PATH = "/tmp/{}".format(_REUTERS_TAR_NAME)
 _REUTERS_TAR_DIR_NAME = "reuters"
 _REUTERS_DATA_DIR = join(FAASM_DATA_DIR, _REUTERS_TAR_DIR_NAME)
 
+_REUTERS_MICRO_TAR_NAME = "reuters_micro.tar.gz"
+_REUTERS_MICRO_TAR_PATH = "/tmp/{}".format(_REUTERS_MICRO_TAR_NAME)
+_REUTERS_MICRO_TAR_DIR_NAME = "reuters_micro"
+_REUTERS_MICRO_DATA_DIR = join(FAASM_DATA_DIR, _REUTERS_MICRO_TAR_DIR_NAME)
+
 _MATRIX_TAR_NAME = "matrix.tar.gz"
 _MATRIX_TAR_PATH = "/tmp/{}".format(_MATRIX_TAR_NAME)
 _MATRIX_TAR_DIR_NAME = "matrix"
@@ -48,6 +53,7 @@ def reuters_upload_s3(ctx):
     Upload data for the reuters experiment to S3
     """
     _do_s3_upload(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+    _do_s3_upload(_REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME)
 
 
 @task

@@ -8,7 +8,9 @@ add_library(profiler
         )
 
 # Faasm internal libs needed for benchmarking/ profiling
+# NOTE - order of linking faasm here is important, should be first
 set(PROFILER_LIBS
+        faasm
         faaslet_lib
         wasm
         wavmmodule
@@ -16,7 +18,6 @@ set(PROFILER_LIBS
         module_cache
         system
         emulator
-        faasm
         )
 
 target_link_libraries(profiler ${PROFILER_LIBS})
