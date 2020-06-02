@@ -222,8 +222,8 @@ class SGDExperimentRunner(InvokeAndWaitRunner):
     func = "reuters_svm"
     result_file_name = "NODE_0_SGD_LOSS.log"
 
-    def __init__(self, n_workers, interval):
-        super().__init__("{} {}".format(n_workers, interval))
+    def __init__(self, n_workers, interval, micro):
+        super().__init__("{} {} {}".format(n_workers, interval, "1" if micro else "0"))
 
         self.n_workers = n_workers
         self.interval = interval
@@ -234,11 +234,11 @@ class SGDExperimentRunner(InvokeAndWaitRunner):
 
 
 @task
-def sgd(ctx, workers, interval, native=False, nobill=False):
+def sgd(ctx, workers, interval, native=False, nobill=False, micro=False):
     """
     Run SGD experiment
     """
-    runner = SGDExperimentRunner(workers, interval)
+    runner = SGDExperimentRunner(workers, interval, micro)
     runner.run(native, nobill=nobill)
 
 
