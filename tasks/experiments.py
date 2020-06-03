@@ -298,6 +298,7 @@ def sgd_pull_results(ctx, user, host):
     """
     SGDExperimentRunner.clean()
     SGDExperimentRunner.pull_results(user, host)
+    SGDExperimentRunner.parse_results()
 
 
 @task
