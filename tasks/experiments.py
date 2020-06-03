@@ -261,7 +261,7 @@ def sgd_multi(ctx, native=False, nobill=False, micro=False):
 
     # Fixed sync interval over all experiments. Must result in convergence,
     # but larger makes things quicker.
-    interval = 100000
+    interval = 60000
 
     # Runs are just lists of worker counts
     if native:
