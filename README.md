@@ -1,7 +1,7 @@
 # Faasm experiments
 
 Repository for holding all experimental/ transient code related to 
-[Faasm](https://github.com/lsds/Faasm.git).
+[Faasm](https://github.com/lsds/faasm.git).
 
 Docs on specific experiments are held in the relevant subfolders. 
 
@@ -12,7 +12,7 @@ elsewhere, just change the symlink.
 ## Local Set-up
 
 If building and these experiments locally, you should set up Faasm for 
-[local development](https://github.com/lsds/Faasm/blob/master/docs/local_dev.md).
+[local development](https://github.com/lsds/faasm/blob/master/docs/local_dev.md).
 
 You must then make sure WAVM and WAMR are up to date:
 

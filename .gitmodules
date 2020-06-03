@@ -1,3 +1,0 @@
-[submodule "third-party/faasm"]
-	path = third-party/faasm
-	url = https://github.com/lsds/Faasm.git
