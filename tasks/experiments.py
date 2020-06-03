@@ -288,7 +288,7 @@ def sgd_multi(ctx, native=False, nobill=False, micro=False):
             kn.delete_worker(ctx, hard=False)
 
         # Wait for things to restart
-        sleep(30)
+        sleep(40)
 
 
 @task
