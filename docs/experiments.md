@@ -42,11 +42,24 @@ whereas number of workers in Faasm is number of Faasm runtimes (which host multi
 workers).
 
 ```bash
-# -- Set up function/ container --
+
+# -- Deploy native --
+# Build container
 inv knative.build-native sgd reuters_svm
+
+# Set up
+inv knative.deploy-native sgd_reuters_svm --replicas=36
+
+# -- Deploy Wasm -- 
+inv knative.deploy --replicas=10
+
+# Check workers present (make sure there's not _more_ than there should be)
+inv redis.all-workers  
+
+# Upload function
 inv upload sgd reuters_svm
 
-# -- Upload data --
+# -- Upload state --
 # Full
 inv data.reuters-state
 
@@ -54,9 +67,6 @@ inv data.reuters-state
 inv data.reuters-state --micro
 
 # -- Native --
-# Deploy
-inv knative.deploy-native sgd_reuters_svm --replicas=36
-
 # Run - full
 inv experiments.sgd-multi --native
 
@@ -64,9 +74,6 @@ inv experiments.sgd-multi --native
 inv experiments.sgd-multi --native --micro
 
 # -- Wasm --
-# Deploy 
-inv knative.deploy --replicas=10
-
 # Run - full
 inv experiments.sgd-multi 
 
