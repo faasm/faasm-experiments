@@ -37,50 +37,43 @@ inv data.matrix-download-s3
 
 ## SGD experiment
 
+Assuming around 20 nodes here. Number of workers in native is number of containers, 
+whereas number of workers in Faasm is number of Faasm runtimes (which host multiple
+workers).
+
 ```bash
-# -- Prepare --
-# Full mode 
-inv data.reuters-state
-
-# Micro mode
-inv data.reuters-state --micro
-
-# -- Build/ upload --
+# -- Set up function/ container --
 inv knative.build-native sgd reuters_svm
 inv upload sgd reuters_svm
 
-# -- Deploy --
+# -- Upload data --
+# Full
+inv data.reuters-state
 
-# Vary number of workers on each run
-export N_WORKERS=10
+# Micro
+inv data.reuters-state --micro
 
-# Native containers
-inv knative.deploy-native sgd reuters_svm --replicas=$N_WORKERS
+# -- Native --
+# Deploy
+inv knative.deploy-native sgd_reuters_svm --replicas=36
 
-# Wasm
-inv knative.deploy --replicas=$N_WORKERS
+# Run - full
+inv experiments.sgd-multi --native
 
-# -- Wait --
+# Run - micro
+inv experiments.sgd-multi --native --micro
 
-watch kn -n faasm service list
-watch kubectl -n faasm get pods
+# -- Wasm --
+# Deploy 
+inv knative.deploy --replicas=10
 
-# -- Run experiment --
+# Run - full
+inv experiments.sgd-multi 
 
-# Native
-inv experiments.sgd --native $N_WORKERS 60000
-
-# Bare metal wasm
-inv experiments.sgd --bm $N_WORKERS 60000
-
-# Knative wasm - full
-inv experiments.sgd $N_WORKERS 60000
-
-# Knative wasm - micro
-inv experiments.sgd $N_WORKERS 60000 --micro
+# Run - micro
+inv experiments.sgd-multi --micro
 
 # -- Clean up --
-
 # Native SGD
 inv knative.delete-native sgd reuters_svm
 

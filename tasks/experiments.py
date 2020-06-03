@@ -19,6 +19,14 @@ from tasks.util.billing import start_billing, pull_billing, parse_billing
 from tasks.util.billing_data import plot_billing_data_multi
 
 
+def _del_redis_state_key(key):
+    cmd = "kubectl -n faasm exec redis-state redis-cli del {}".format(key)
+    res = call(cmd, shell=True)
+    if res != 0:
+        print("Failed to execute command {} (ret code {})".format(cmd, res))
+        exit(1)
+
+
 class ExperimentRunner(object):
     user = None
     func = None
@@ -240,6 +248,47 @@ def sgd(ctx, workers, interval, native=False, nobill=False, micro=False):
     """
     runner = SGDExperimentRunner(workers, interval, micro)
     runner.run(native, nobill=nobill)
+
+
+@task
+def sgd_multi(ctx, native=False, nobill=False, micro=False):
+    """
+    Runs the full set of SGD expierments
+    """
+    if not is_kubernetes():
+        print("Expected SGD multi to run on Kubernetes")
+        exit(1)
+
+    # Fixed sync interval over all experiments. Must result in convergence,
+    # but larger makes things quicker.
+    interval = 100000
+
+    # Runs are just lists of worker counts
+    if native:
+        runs = [
+            2, 5, 10, 15, 20, 25, 30
+        ]
+    else:
+        runs = [
+            2, 5, 10, 15, 20, 25, 30, 35
+        ]
+
+    for n_workers in runs:
+        # Run the expieriment
+        sgd(ctx, n_workers, interval, native=native, nobill=nobill, micro=micro)
+
+        # Clean out the params
+        _del_redis_state_key("sgd_params")
+        _del_redis_state_key("sgd_weights")
+
+        # Restart workers
+        if native:
+            kn.delete_native(ctx, "sgd", "reuters_svm", hard=False)
+        else:
+            kn.delete_worker(ctx, hard=False)
+
+        # Wait for things to restart
+        sleep(30)
 
 
 @task
