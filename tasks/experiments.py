@@ -37,7 +37,6 @@ class ExperimentRunner(object):
 
     def __init__(self, input_data=None):
         self.input_data = input_data
-        self.no_billing = False
 
     @abstractmethod
     def get_result_folder_name(self, system):
@@ -86,22 +85,9 @@ class ExperimentRunner(object):
             billing_result_dir = join(parent_dir, "billing", "results")
             parse_billing(billing_result_dir, parent_dir)
 
-    def run(self, native, nobill=False):
-        self.no_billing = nobill
+    def run(self, native, nobill=False, repeats=1):
 
-        if native:
-            self.run_native()
-        else:
-            self.run_wasm()
-
-    def run_wasm(self):
-        self._do_run(False)
-
-    def run_native(self):
-        self._do_run(True)
-
-    def _do_run(self, native):
-        if not self.no_billing:
+        if not nobill:
             # Start the billing scripts
             start_billing()
 
@@ -112,12 +98,13 @@ class ExperimentRunner(object):
         run_start = time()
 
         # Run the actual benchmark
-        success, output = self.execute_benchmark(native)
+        for x in range(repeats):
+            success, output = self.execute_benchmark(native)
 
         # Finish the timer
         run_time_ms = (time() - run_start) * 1000.0
 
-        if not self.no_billing:
+        if not nobill:
             # Pull the billing info
             pull_billing()
 
@@ -135,7 +122,7 @@ class ExperimentRunner(object):
             fh.write(output)
 
         # Copy billing directory into place
-        if not self.no_billing:
+        if not nobill:
             res = call("cp -r /tmp/billing {}/".format(result_dir), shell=True)
             if res != 0:
                 raise RuntimeError("Failed to put billing files in place")
@@ -277,13 +264,12 @@ def sgd_multi(ctx, native=False, nobill=False, micro=False):
 
     for n_workers in runs:
         # Run the expieriment multiple times
-        for x in range(function_repeats):
-            print("Invoking repeat {}", x)
-            sgd(ctx, n_workers, interval, native=native, nobill=nobill, micro=micro)
+        runner = SGDExperimentRunner(n_workers, interval, micro)
+        runner.run(native, nobill=nobill, repeats=function_repeats)
 
-            # Clean out the params
-            _del_redis_state_key("sgd_params")
-            _del_redis_state_key("sgd_weights")
+        # Clean out the params
+        _del_redis_state_key("sgd_params")
+        _del_redis_state_key("sgd_weights")
 
         # Restart workers
         if native:
