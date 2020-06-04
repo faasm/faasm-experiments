@@ -259,6 +259,8 @@ def sgd_multi(ctx, native=False, nobill=False, micro=False):
         print("Expected SGD multi to run on Kubernetes")
         exit(1)
 
+    function_repeats = 30
+
     # Fixed sync interval over all experiments. Must result in convergence,
     # but larger makes things quicker.
     interval = 60000
@@ -266,7 +268,7 @@ def sgd_multi(ctx, native=False, nobill=False, micro=False):
     # Runs are just lists of worker counts
     if native:
         runs = [
-            2, 5, 10, 15, 20, 25, 30
+            2, 5, 10, 15, 20, 25, 30, 35
         ]
     else:
         runs = [
@@ -274,12 +276,14 @@ def sgd_multi(ctx, native=False, nobill=False, micro=False):
         ]
 
     for n_workers in runs:
-        # Run the expieriment
-        sgd(ctx, n_workers, interval, native=native, nobill=nobill, micro=micro)
+        # Run the expieriment multiple times
+        for x in range(function_repeats):
+            print("Invoking repeat {}", x)
+            sgd(ctx, n_workers, interval, native=native, nobill=nobill, micro=micro)
 
-        # Clean out the params
-        _del_redis_state_key("sgd_params")
-        _del_redis_state_key("sgd_weights")
+            # Clean out the params
+            _del_redis_state_key("sgd_params")
+            _del_redis_state_key("sgd_weights")
 
         # Restart workers
         if native:
