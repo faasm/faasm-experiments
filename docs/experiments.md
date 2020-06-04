@@ -43,14 +43,32 @@ workers).
 
 ```bash
 
-# -- Deploy native --
+# ---------------------
+# Native
+# ---------------------
+
 # Build container
 inv knative.build-native sgd reuters_svm
 
-# Set up
-inv knative.deploy-native sgd_reuters_svm --replicas=36
+# Deploy
+inv knative.deploy-native sgd reuters_svm --replicas=36
 
-# -- Deploy Wasm -- 
+# State and run - full
+inv data.reuters-state
+inv experiments.sgd-multi --native
+
+# State and run - micro
+inv data.reuters-state --micro
+inv experiments.sgd-multi --native --micro
+
+# Clean up
+inv knative.delete-native --hard sgd reuters_svm
+
+# ---------------------
+# Wasm
+# ---------------------
+
+# Deploy 
 inv knative.deploy --replicas=10
 
 # Check workers present (make sure there's not _more_ than there should be)
@@ -59,32 +77,15 @@ inv redis.all-workers
 # Upload function
 inv upload sgd reuters_svm
 
-# -- Upload state --
-# Full
+# State and run - full
 inv data.reuters-state
-
-# Micro
-inv data.reuters-state --micro
-
-# -- Native --
-# Run - full
-inv experiments.sgd-multi --native
-
-# Run - micro
-inv experiments.sgd-multi --native --micro
-
-# -- Wasm --
-# Run - full
 inv experiments.sgd-multi 
 
-# Run - micro
+# State and run - micro
+inv data.reuters-state --micro
 inv experiments.sgd-multi --micro
 
-# -- Clean up --
-# Native SGD
-inv knative.delete-native sgd reuters_svm
-
-# Wasm
+# Clean up
 inv knative.delete-worker --hard
 ```
 
