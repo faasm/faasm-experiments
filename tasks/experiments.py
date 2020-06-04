@@ -268,11 +268,11 @@ def sgd_multi(ctx, native=False, nobill=False, micro=False):
     # Runs are just lists of worker counts
     if native:
         runs = [
-            2, 5, 10, 15, 20, 25, 30, 35
+            5, 10, 15, 20, 25, 30, 35, 40, 45, 50
         ]
     else:
         runs = [
-            2, 5, 10, 15, 20, 25, 30, 35
+            5, 10, 15, 20, 25, 30, 35, 40, 45, 50
         ]
 
     for n_workers in runs:
