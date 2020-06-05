@@ -1,6 +1,6 @@
 
 add_executable(bench_mem bench_mem.cpp)
-target_link_libraries(bench_mem profiler emulator)
+target_link_libraries(bench_mem profiler)
 
 add_executable(bench_func GenericFunctionProfiler.h GenericFunctionProfiler.cpp bench_func.cpp)
 target_link_libraries(bench_func profiler)

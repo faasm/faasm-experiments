@@ -19,6 +19,14 @@ from tasks.util.billing import start_billing, pull_billing, parse_billing
 from tasks.util.billing_data import plot_billing_data_multi
 
 
+def _del_redis_state_key(key):
+    cmd = "kubectl -n faasm exec redis-state redis-cli del {}".format(key)
+    res = call(cmd, shell=True)
+    if res != 0:
+        print("Failed to execute command {} (ret code {})".format(cmd, res))
+        exit(1)
+
+
 class ExperimentRunner(object):
     user = None
     func = None
@@ -29,7 +37,6 @@ class ExperimentRunner(object):
 
     def __init__(self, input_data=None):
         self.input_data = input_data
-        self.no_billing = False
 
     @abstractmethod
     def get_result_folder_name(self, system):
@@ -78,22 +85,9 @@ class ExperimentRunner(object):
             billing_result_dir = join(parent_dir, "billing", "results")
             parse_billing(billing_result_dir, parent_dir)
 
-    def run(self, native, nobill=False):
-        self.no_billing = nobill
+    def run(self, native, nobill=False, repeats=1):
 
-        if native:
-            self.run_native()
-        else:
-            self.run_wasm()
-
-    def run_wasm(self):
-        self._do_run(False)
-
-    def run_native(self):
-        self._do_run(True)
-
-    def _do_run(self, native):
-        if not self.no_billing:
+        if not nobill:
             # Start the billing scripts
             start_billing()
 
@@ -104,12 +98,13 @@ class ExperimentRunner(object):
         run_start = time()
 
         # Run the actual benchmark
-        success, output = self.execute_benchmark(native)
+        for x in range(repeats):
+            success, output = self.execute_benchmark(native)
 
         # Finish the timer
         run_time_ms = (time() - run_start) * 1000.0
 
-        if not self.no_billing:
+        if not nobill:
             # Pull the billing info
             pull_billing()
 
@@ -127,7 +122,7 @@ class ExperimentRunner(object):
             fh.write(output)
 
         # Copy billing directory into place
-        if not self.no_billing:
+        if not nobill:
             res = call("cp -r /tmp/billing {}/".format(result_dir), shell=True)
             if res != 0:
                 raise RuntimeError("Failed to put billing files in place")
@@ -222,8 +217,8 @@ class SGDExperimentRunner(InvokeAndWaitRunner):
     func = "reuters_svm"
     result_file_name = "NODE_0_SGD_LOSS.log"
 
-    def __init__(self, n_workers, interval):
-        super().__init__("{} {}".format(n_workers, interval))
+    def __init__(self, n_workers, interval, micro):
+        super().__init__("{} {} {}".format(n_workers, interval, "1" if micro else "0"))
 
         self.n_workers = n_workers
         self.interval = interval
@@ -234,12 +229,56 @@ class SGDExperimentRunner(InvokeAndWaitRunner):
 
 
 @task
-def sgd(ctx, workers, interval, native=False, nobill=False):
+def sgd(ctx, workers, interval, native=False, nobill=False, micro=False):
     """
     Run SGD experiment
     """
-    runner = SGDExperimentRunner(workers, interval)
+    runner = SGDExperimentRunner(workers, interval, micro)
     runner.run(native, nobill=nobill)
+
+
+@task
+def sgd_multi(ctx, native=False, nobill=False, micro=False):
+    """
+    Runs the full set of SGD expierments
+    """
+    if not is_kubernetes():
+        print("Expected SGD multi to run on Kubernetes")
+        exit(1)
+
+    function_repeats = 30
+
+    # Fixed sync interval over all experiments. Must result in convergence,
+    # but larger makes things quicker.
+    interval = 60000
+
+    # Runs are just lists of worker counts
+    if native:
+        runs = [
+            5, 10, 15, 20, 25, 30, 35, 40, 45, 50
+        ]
+    else:
+        runs = [
+            5, 10, 15, 20, 25, 30, 35, 40, 45, 50
+        ]
+
+    for n_workers in runs:
+        # Run the expieriment multiple times
+        runner = SGDExperimentRunner(n_workers, interval, micro)
+        runner.run(native, nobill=nobill, repeats=function_repeats)
+
+        # Clean out the params
+        _del_redis_state_key("sgd_params")
+        _del_redis_state_key("sgd_weights")
+
+        # Restart workers
+        if native:
+            kn.delete_native(ctx, "sgd", "reuters_svm", hard=False)
+        else:
+            kn.delete_worker(ctx, hard=False)
+
+        # Wait for things to restart
+        sleep(40)
 
 
 @task
@@ -249,6 +288,7 @@ def sgd_pull_results(ctx, user, host):
     """
     SGDExperimentRunner.clean()
     SGDExperimentRunner.pull_results(user, host)
+    SGDExperimentRunner.parse_results()
 
 
 @task
@@ -425,27 +465,39 @@ def tf_lat(ctx):
 
 
 @task
-def tf_tpt(ctx, native=False, nobill=False):
+def tf_tpt(ctx, native=False, nobill=True):
     """
     Run TF throughput experiment
     """
 
     # Runs with delay, duration
-    runs = [
-        (30000, 180),
-        (20000, 160),
-        (10000, 140),
-        (5000, 120),
-        (3000, 100),
-        (2000, 100),
-        # (1000, 100),
-        # (800, 80),
-        # (600, 80),
-        # (400, 60),
-        # (200, 60),
-        # (100, 60),
-        # (0, 60),
-    ]
+    if native:
+        runs = [
+            (30000, 180),
+            (20000, 160),
+            (10000, 140),
+            (5000, 120),
+            (3000, 100),
+            (2000, 100),
+            (1000, 100),
+        ]
+    else:
+        runs = [
+            (30000, 180),
+            (20000, 160),
+            (10000, 140),
+            (5000, 120),
+            (3000, 100),
+            (2000, 100),
+            (1000, 100),
+            (800, 80),
+            (600, 80),
+            (400, 60),
+            (200, 60),
+            (100, 60),
+            (50, 60),
+            (25, 60),
+        ]
 
     # Different cold start intervals
     cold_start_intervals = [5, 10, 20, 40, 80] if native else [500]
@@ -507,7 +559,7 @@ def tf_lat_pull_results(ctx, user, host):
 
 
 @task
-def tf_tpt_pull_results(ctx, user, host, nobill=False):
+def tf_tpt_pull_results(ctx, user, host, nobill=True):
     """
     Pull results for TF throughput experiment
     """

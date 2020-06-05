@@ -32,7 +32,7 @@ def mapping(ctx):
     call_ids = list()
     for read_idx in read_idxs:
         print("Invoking worker for read chunk {}".format(read_idx))
-        call_id = invoke_impl("gene", "mapper", input="{}".format(read_idx), async=True, poll=False)
+        call_id = invoke_impl("gene", "mapper", input="{}".format(read_idx), asynch=True, poll=False)
         call_ids.append(call_id)
 
     # Poll for completion of each read

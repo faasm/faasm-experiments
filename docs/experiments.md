@@ -37,48 +37,55 @@ inv data.matrix-download-s3
 
 ## SGD experiment
 
-```bash
-# -- Prepare --
-# Upload data (one off)
-inv data.reuters-state
+Assuming around 20 nodes here. Number of workers in native is number of containers, 
+whereas number of workers in Faasm is number of Faasm runtimes (which host multiple
+workers).
 
-# -- Build/ upload --
+```bash
+
+# ---------------------
+# Native
+# ---------------------
+
+# Build container
 inv knative.build-native sgd reuters_svm
+
+# Deploy
+inv knative.deploy-native sgd reuters_svm --replicas=36
+
+# State and run - full
+inv data.reuters-state
+inv experiments.sgd-multi --native
+
+# State and run - micro
+inv data.reuters-state --micro
+inv experiments.sgd-multi --native --micro
+
+# Clean up
+inv knative.delete-native --hard sgd reuters_svm
+
+# ---------------------
+# Wasm
+# ---------------------
+
+# Deploy 
+inv knative.deploy --replicas=10
+
+# Check workers present (make sure there's not _more_ than there should be)
+inv redis.all-workers  
+
+# Upload function
 inv upload sgd reuters_svm
 
-# -- Deploy --
+# State and run - full
+inv data.reuters-state
+inv experiments.sgd-multi 
 
-# Vary number of workers on each run
-export N_WORKERS=10
+# State and run - micro
+inv data.reuters-state --micro
+inv experiments.sgd-multi --micro
 
-# Native containers
-inv knative.deploy-native sgd reuters_svm $N_WORKERS
-
-# Wasm
-inv knative.deploy $N_WORKERS
-
-# -- Wait --
-
-watch kn -n faasm service list
-watch kubectl -n faasm get pods
-
-# -- Run experiment --
-
-# Native SGD
-inv experiments.sgd --native $N_WORKERS 60000
-
-# Bare metal wasm SGD
-inv experiments.sgd --bm $N_WORKERS 60000
-
-# Knative wasm SGD
-inv experiments.sgd $N_WORKERS 60000
-
-# -- Clean up --
-
-# Native SGD
-inv knative.delete-native sgd reuters_svm
-
-# Wasm
+# Clean up
 inv knative.delete-worker --hard
 ```
 
@@ -94,10 +101,10 @@ export N_WORKERS=<number of workers>
 # -- Deploy --
 
 # Native
-inv knative.deploy-native-python $N_WORKERS
+inv knative.deploy-native-python --replicas=$N_WORKERS
 
 # Wasm
-inv knative.deploy $N_WORKERS
+inv knative.deploy --replicas=$N_WORKERS
 
 # -- Run experiment --
 
@@ -133,8 +140,8 @@ Latency:
 
 ```bash
 # -- Deploy both (note small number of workers) --
-inv knative.deploy-native tf image 1
-inv knative.deploy 1
+inv knative.deploy --replicas=1
+inv knative.deploy-native tf image --replicas=1
 
 # -- Run experiment --
 inv experiments.tf-lat
@@ -145,17 +152,17 @@ Throughput:
 ```bash
 # -- Deploy --
 # Native
-inv knative.deploy-native tf image 30
+inv knative.deploy-native tf image --replicas=30
 
 # Wasm
-inv knative.deploy 18
+inv knative.deploy --replicas=18
 
 # -- Run experiment --
 
 # Native 
 inv experiments.tf-tpt --native
 
-# Wasm latency
+# Wasm
 inv experiments.tf-tpt
 ```
 
@@ -176,3 +183,7 @@ inv experiments.tf-lat-pull-results <user> <host>
 # Inference throughput
 inv experiments.tf-tpt-pull-results <user> <host>
 ```
+
+This pulls the results to `~/faasm/<user>_<func>` on your local machine (e.g. `~/faasm/tf_image`).
+The raw data will be held in a directory per experiment, the format will vary from experiment 
+to experiment. These directories can then be iterated over and processed.  

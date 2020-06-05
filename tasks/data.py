@@ -22,6 +22,11 @@ _REUTERS_TAR_PATH = "/tmp/{}".format(_REUTERS_TAR_NAME)
 _REUTERS_TAR_DIR_NAME = "reuters"
 _REUTERS_DATA_DIR = join(FAASM_DATA_DIR, _REUTERS_TAR_DIR_NAME)
 
+_REUTERS_MICRO_TAR_NAME = "reuters_micro.tar.gz"
+_REUTERS_MICRO_TAR_PATH = "/tmp/{}".format(_REUTERS_MICRO_TAR_NAME)
+_REUTERS_MICRO_TAR_DIR_NAME = "reuters_micro"
+_REUTERS_MICRO_DATA_DIR = join(FAASM_DATA_DIR, _REUTERS_MICRO_TAR_DIR_NAME)
+
 _MATRIX_TAR_NAME = "matrix.tar.gz"
 _MATRIX_TAR_PATH = "/tmp/{}".format(_MATRIX_TAR_NAME)
 _MATRIX_TAR_DIR_NAME = "matrix"
@@ -43,11 +48,14 @@ _ALL_REUTERS_STATE_KEYS = [
 # -------------------------------------------------
 
 @task
-def reuters_upload_s3(ctx):
+def reuters_upload_s3(ctx, micro=False):
     """
     Upload data for the reuters experiment to S3
     """
-    _do_s3_upload(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+    if not micro:
+        _do_s3_upload(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+
+    _do_s3_upload(_REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME)
 
 
 @task
@@ -81,11 +89,14 @@ def _do_s3_upload(tar_path, tar_dir, tar_name):
 
 
 @task
-def reuters_download_s3(ctx):
+def reuters_download_s3(ctx, micro=False):
     """
     Download data for the reuters experiment from S3
     """
-    _do_s3_download(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+    if not micro:
+        _do_s3_download(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+
+    _do_s3_download(_REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME)
 
 
 @task
@@ -125,7 +136,7 @@ def _do_s3_download(tar_path, tar_dir, tar_name):
 # -------------------------------------------------
 
 @task
-def reuters_state(ctx, host=None, knative=True):
+def reuters_state(ctx, host=None, knative=True, micro=False):
     """
     Upload reuters experiment state
     """
@@ -133,15 +144,17 @@ def reuters_state(ctx, host=None, knative=True):
 
     host = get_kubernetes_upload_host(knative, host)
 
-    # Upload the matrix data
-    upload_sparse_matrix(user, "inputs", _REUTERS_DATA_DIR, host=host)
+    data_dir = _REUTERS_MICRO_DATA_DIR if micro else _REUTERS_DATA_DIR
 
-    # Upload the categories data
-    cat_path = join(_REUTERS_DATA_DIR, "outputs")
-    upload_binary_state(user, "outputs", cat_path, host=host)
+    # Upload the inputs data
+    upload_sparse_matrix(user, "inputs", data_dir, host=host)
+
+    # Upload the outputs data
+    outputs_path = join(data_dir, "outputs")
+    upload_binary_state(user, "outputs", outputs_path, host=host)
 
     # Upload the feature counts
-    counts_path = join(_REUTERS_DATA_DIR, "feature_counts")
+    counts_path = join(data_dir, "feature_counts")
     upload_binary_state(user, "feature_counts", counts_path, host=host)
 
 
