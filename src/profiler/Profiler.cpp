@@ -3,12 +3,10 @@
 #include <util/timing.h>
 #include <util/logging.h>
 #include <proto/faasm.pb.h>
-#include <wasm/WasmModule.h>
 #include <util/config.h>
 #include <util/func.h>
 
 #include <fstream>
-#include <util/environment.h>
 #include <module_cache/WasmModuleCache.h>
 #include <wamr/WAMRWasmModule.h>
 
@@ -67,21 +65,24 @@ namespace runner {
     void Profiler::runWasmWithWamr(message::Message &call, int nIterations, std::ofstream &profOut) {
         const std::shared_ptr<spdlog::logger> &logger = util::getLogger();
 
-        wasm::WAMRWasmModule module;
-        module.bindToFunction(call);
+        wasm::initialiseWAMRGlobally();
 
         logger->info("Running WAMR benchmark");
         for (int i = 0; i < nIterations; i++) {
             logger->info("WAMR - {} run {}", this->outputName, i);
 
-            const util::TimePoint wasmTp = util::startTimer();
+            wasm::WAMRWasmModule module;
+            module.bindToFunction(call);
 
             // Exec the function
+            const util::TimePoint wasmTp = util::startTimer();
             module.execute(call);
 
             long wasmTime = util::getTimeDiffMicros(wasmTp);
             profOut << this->outputName << ",wamr," << wasmTime << std::endl;
         }
+
+        wasm::tearDownWAMRGlobally();
     }
 
     void Profiler::runBenchmark(int nNativeIterations, int nWasmIterations, std::ofstream &profOut) {
