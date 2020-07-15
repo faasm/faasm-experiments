@@ -1,6 +1,4 @@
-# Benchmarks
-
-## Runtimes
+# Runtime Overheads
 
 For efficiency measurements we want to assess the time taken and resources
 consumed by Faasm vs containers. To do this we need to measure the time taken,
@@ -22,40 +20,7 @@ To amortize any start-up time and underlying system resources we run each for
 multiple iterations and varying numbers of workers (containers for Docker,
 threads for Faasm).
 
-### Set up
-
-To run on a remote machine, you need to set up an inventory file at
-`ansible/inventory/benchmark.yml`, e.g.
-
-```
-[all]
-my.hostname.blah
-```
-
-It's worth making sure the host is up to date before starting (i.e. `sudo
-apt-get update && sudo apt-get upgrade -y`). 
-
-You can then set up the machine with:
-
-```
-./bin/provision_bench_host.sh
-```
-
-You'll need to restart the host once Ansible has finished.
-
-Once the host is fully set up, you can SSH onto it and run:
-
-```
-./bin/set_up_benchmarks.sh
-```
-
-You'll also need to download the toolchain, sysroot and runtime root:
-
-```
-inv toolchain.download-toolchain
-inv toolchain.download-sysroot
-inv toolchain.download-runtime
-```
+See the [README](../README.md) for how to set up the experiments. 
 
 ### Memory
 
@@ -250,118 +215,3 @@ inv bench.tpt
 ```
 
 The results will be output at `~/faasm/results/runtime-bench-tpt.csv`.
-
-## Polybench/C
-
-To test pure computation against the native environment we can use the
-[Polybench/C benchmark](http://web.cse.ohio-state.edu/~pouchet.2/software/polybench/).
-
-The code is checked into this repository and can be compiled to wasm and
-uploaded as follows.
-
-Note that you'll need an upload server running (i.e. using the `upload` target,
-e.g. `~/faasm/bench/bin/upload`).
-
-```
-# Compile to wasm
-inv compile.user polybench --clean
-
-# Upload (must have an upload server running)
-inv upload.user polybench
-```
-
-We can compile the same functions natively as follows:
-
-```
-./bin/build_polybench_native.sh
-```
-
-The `poly_bench` target will then run a comparison of the wasm and native
-versions. This must be invoked with your desired number of iterations for native
-and wasm respectively, e.g.
-
-```
-~/faasm/bench/bin/poly_bench all 5 5
-```
-
-Results are currently output to `/tmp/polybench.csv`.
-
-_Note - we had to leave out the BLAS benchmarks as BLAS is not supported in Faasm_.
-
-## Python
-
-To benchmark CPython execution we use the [Python Performance Benchmark
-Suite](https://github.com/python/pyperformance).
-
-All python code runs in the same function which can be set up according to the
-`local_dev.md` docs in this repo. In short this is:
-
-```bash
-inv python.codegen
-inv codegen.local
-inv upload.user python --py --local-copy
-```
-
-Before running, you can check both the native and wasm python versions with:
-
-```bash
-~/faasm/bench/bin/python_bench bench_version 1 1
-```
-
-The set of benchmarks can be run with the `python_bench` target, e.g.:
-
-```bash
-~/faasm/bench/bin/python_bench all 5 5
-```
-
-Output is written to `/tmp/pybench.csv`.
-
-Each benchmark requires porting the required dependencies, so some were
-unfeasible and other were too much work:
-
-- `chameleon` - too many deps
-- `django_template` - pulls in too many dependencies
-- `hg_startup` - runs a shell command
-- `html5lib` - dependencies (might be fine)
-- `pathlib` - requires more access to the filesystem that we support
-- `python_startup` - runs a shell command
-- `regex_compile` - needs to import several other local modules (should be possible, just fiddly)
-- SQL-related - SQLAlchemy not worth porting for now. SQLite also not supported but could be
-- `sympy` - sympy module not yet ported but could be
-- `tornado` - Tornado not ported (and don't plan to)
-
-
-## Profiling
-
-### Profiling Polybench/C
-
-To profile the native version of the code, you need to run
-`./bin/build_polybench_native.sh Debug`
-
-Then you can directly run the native binary:
-
-```
-perf record -k 1 ./func/build_native/polybench/poly_ludcmp
-mv perf.data perf.data.native
-perf report -i perf.data.native
-```
-
-Provided you have set up the wasm profiling set-up as described in the profiling
-docs, you can do something similar:
-
-```
-perf record -k 1 poly_bench poly_ludcmp 0 5
-perf inject -i perf.data -j -o perf.data.wasm
-perf report -i perf.data.wasm
-```
-
-Note that for wasm code the output of the perf reports will be function names
-like `functionDef123`.  To generate the mapping of these names to the actual
-functions you can run:
-
-```
-inv disas.symbols <user> <func>
-
-# For example
-inv disas.symbols polybench 3mm
-```

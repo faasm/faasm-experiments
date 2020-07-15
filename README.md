@@ -43,6 +43,23 @@ cd ansible
 ansible-playbook -i inventory/benchmark.yml experiment_client.yml
 ```
 
+## Microbenchmarks Set-up
+
+To execute the microbenchmarks you'll need to run a few more steps on your
+experiment host. First, SSH in and run:
+
+```
+./bin/set_up_benchmarks.sh
+```
+
+Then download the toolchain, sysroot and runtime root:
+
+```
+inv toolchain.download-toolchain
+inv toolchain.download-sysroot
+inv toolchain.download-runtime
+```
+
 ## Python
 
 From your client machine (local or remote), you'll need to run Python tasks.
