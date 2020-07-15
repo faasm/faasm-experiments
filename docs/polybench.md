@@ -3,13 +3,21 @@
 To test pure computation against the native environment we can use the
 [Polybench/C benchmark](http://web.cse.ohio-state.edu/~pouchet.2/software/polybench/).
 
+Before you start you'll need to run the benchmarks set-up:
+
+```bash
+./bin/set_up_benchmarks.sh
+```
+
 The code is checked into this repository and can be compiled to wasm and
 uploaded as follows.
 
 ```
-# Compile to wasm and run codegen
+# Compile to wasm and run codegen for WAVM and WAMR
 inv compile.user polybench --clean
+
 inv codegen.user polybench
+inv codegen.user polybench --wamr
 ```
 
 We can compile the same functions natively as follows:

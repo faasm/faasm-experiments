@@ -11,6 +11,17 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+set(FAASM_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/third-party/faasm)
+set(WAMR_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/third-party/faasm/third-party/wamr)
+
+# Annoyingly we have to add the WAMR config here
+set(WAMR_BUILD_PLATFORM linux)
+set(WAMR_BUILD_INTERP 0)
+set(WAMR_BUILD_JIT 0)
+set(WAMR_BUILD_AOT 1)
+set(WAMR_BUILD_LIBC_WASI 1)
+set(WAMR_BUILD_LIB_PTHREAD 1)
+
 # Add Faasm self-tracing
 set(FAASM_SELF_TRACING ON)
 add_definitions(-DTRACE_ALL=1)

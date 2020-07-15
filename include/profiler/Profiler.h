@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <proto/faasm.pb.h>
 
 namespace runner {
 
@@ -22,8 +23,10 @@ namespace runner {
         const std::string inputData;
         std::string pythonUser;
         std::string pythonFunction;
-
-    protected:
         std::string outputName;
+
+        void runWasmWithWavm(message::Message &call, int nIterations, std::ofstream &profOut);
+
+        void runWasmWithWamr(message::Message &call, int nIterations, std::ofstream &profOut);
     };
 }

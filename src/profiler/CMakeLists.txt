@@ -13,6 +13,7 @@ set(PROFILER_LIBS
         faasm
         faaslet_lib
         wasm
+        wamrmodule
         wavmmodule
         util
         module_cache
@@ -21,3 +22,8 @@ set(PROFILER_LIBS
         )
 
 target_link_libraries(profiler ${PROFILER_LIBS})
+
+# Have to include WAMR stuff here
+set(BUILD_UNTRUST_PART 1)
+include(${WAMR_ROOT_DIR}/build-scripts/runtime_lib.cmake)
+

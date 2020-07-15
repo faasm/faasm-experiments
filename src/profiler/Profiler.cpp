@@ -10,6 +10,7 @@
 #include <fstream>
 #include <util/environment.h>
 #include <module_cache/WasmModuleCache.h>
+#include <wamr/WAMRWasmModule.h>
 
 namespace runner {
     Profiler::Profiler(const std::string userIn, const std::string funcNameIn, const std::string inputDataIn) : user(
@@ -25,37 +26,61 @@ namespace runner {
     }
 
     void Profiler::runWasm(int nIterations, std::ofstream &profOut) {
-        const std::shared_ptr<spdlog::logger> &logger = util::getLogger();
-
-        // Initialise wasm runtime
-        const util::TimePoint tpInit = util::startTimer();
-        
         message::Message call = util::messageFactory(this->user, this->funcName);
         call.set_pythonuser(this->pythonUser);
         call.set_pythonfunction(this->pythonFunction);
         call.set_inputdata(this->inputData);
 
+        runWasmWithWamr(call, nIterations, profOut);
+        runWasmWithWavm(call, nIterations, profOut);
+    }
+
+    void Profiler::runWasmWithWavm(message::Message &call, int nIterations, std::ofstream &profOut) {
+        const std::shared_ptr<spdlog::logger> &logger = util::getLogger();
+
+        // Initialise WAVM
+        const util::TimePoint tpInit = util::startTimer();
         module_cache::WasmModuleCache &moduleCache = module_cache::getWasmModuleCache();
         wasm::WAVMWasmModule &cachedModule = moduleCache.getCachedModule(call);
+        util::logEndTimer("WAVM initialisation", tpInit);
 
-        logger->info("Running benchmark in WASM");
+        logger->info("Running WAVM benchmark");
         for (int i = 0; i < nIterations; i++) {
-            logger->info("WASM - {} run {}", this->outputName, i);
-
-            const util::TimePoint wasmTp = util::startTimer();
+            logger->info("WAVM - {} run {}", this->outputName, i);
 
             // Create module
             wasm::WAVMWasmModule module(cachedModule);
-            util::logEndTimer("WASM initialisation", tpInit);
+
+            // Time just the execution
+            const util::TimePoint wasmTp = util::startTimer();
+
+            module.execute(call);
+
+            long wasmTime = util::getTimeDiffMicros(wasmTp);
+            profOut << this->outputName << ",wavm," << wasmTime << std::endl;
+
+            // Reset
+            module = cachedModule;
+        }
+    }
+
+    void Profiler::runWasmWithWamr(message::Message &call, int nIterations, std::ofstream &profOut) {
+        const std::shared_ptr<spdlog::logger> &logger = util::getLogger();
+
+        wasm::WAMRWasmModule module;
+        module.bindToFunction(call);
+
+        logger->info("Running WAMR benchmark");
+        for (int i = 0; i < nIterations; i++) {
+            logger->info("WAMR - {} run {}", this->outputName, i);
+
+            const util::TimePoint wasmTp = util::startTimer();
 
             // Exec the function
             module.execute(call);
 
-            // Reset
-            module = cachedModule;
-
             long wasmTime = util::getTimeDiffMicros(wasmTp);
-            profOut << this->outputName << ",wasm," << wasmTime << std::endl;
+            profOut << this->outputName << ",wamr," << wasmTime << std::endl;
         }
     }
 
