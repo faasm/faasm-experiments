@@ -36,8 +36,12 @@ run:
 ./bin/clean_genomics.sh
 ./bin/build_genomics.sh
 
+# Build the main mapper kick-off function
+inv compile gene mapper --clean
+inv upload gene mapper
+
 # Upload
-inv upload.genomics
+inv genomics.upload-funcs
 
 # Invoke for a single read chunk
 inv invoke gene mapper --input=1
