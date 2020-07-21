@@ -13,10 +13,11 @@ from faasmcli.util.call import invoke_impl, status_call_impl, STATUS_SUCCESS, ST
 from faasmcli.util.endpoints import get_invoke_host_port
 from faasmcli.util.endpoints import get_upload_host_port
 from faasmcli.util.env import FAASM_DATA_DIR, THIRD_PARTY_DIR, FAASM_SHARED_STORAGE_ROOT
-from faasmcli.util.env import PROJ_ROOT
 from faasmcli.util.state import download_binary_state
 from faasmcli.util.state import upload_shared_file
 from faasmcli.util.upload_util import curl_file
+
+from tasks.util.env import EXPERIMENTS_ROOT
 from tasks.util.genomics import GENOMICS_DATA_DIR, CHROMOSOME_URLS, CHROMOSOME_NUMBERS, READ_URLS, get_reads_from_dir
 from tasks.util.genomics import INDEX_CHUNKS
 
@@ -199,6 +200,6 @@ def upload_funcs(ctx, host="localhost", port=None):
         func_name = "mapper_index{}".format(i)
         print("Uploading function gene/{} to {}:{}".format(func_name, host, port))
 
-        file_path = join(PROJ_ROOT, "third-party/gem3-mapper/wasm_bin/gem-mapper")
+        file_path = join(EXPERIMENTS_ROOT, "third-party/gem3-mapper/wasm_bin/gem-mapper")
         url = "http://{}:{}/f/gene/{}".format(host, port, func_name)
         curl_file(url, file_path)

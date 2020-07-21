@@ -2,8 +2,10 @@
 
 The genomics use-case involves multiple Faasm functions:
 
-- `gene/mapper` - the top-level entry function. This spawns a child to handle each chunk of reads data.
-- `gene/mapper_index[1-n]` - each of these functions handles the mapping for a different chunk of the index.
+- `gene/mapper` - the top-level entry function. This spawns a child to handle
+  each chunk of reads data.
+- `gene/mapper_index[1-n]` - each of these functions handles the mapping for a
+  different chunk of the index.
 
 There will be as many `gene/mapper_index` functions as there are chunks of the
 index. A basic division of the human genome will be into chromosomes, in this

@@ -1,6 +1,6 @@
 # Faasm experiments
 
-Repository for holding all experimental/ transient code related to 
+This repository holds all experimental/ transient code related to 
 [Faasm](https://github.com/lsds/faasm.git).
 
 Docs on specific experiments are held in the relevant subfolders. 
@@ -21,6 +21,22 @@ cd third-party/faasm
 git submodule update --init third-party/WAVM
 git submodule update --init third-party/wamr
 ``` 
+
+Finally, to use the Faasm CLI, you need to run:
+
+```
+# Go to your Faasm root
+cd /usr/local/code/faasm 
+
+# Run the CLI
+source workon.sh
+
+# Go back to this dir
+cd <this directory>
+
+# Check 
+inv toolchain.version
+```
 
 ## Remote Set-up
 
