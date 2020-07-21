@@ -1,5 +1,5 @@
 import multiprocessing
-from os import listdir
+from os import listdir, makedirs
 from os.path import join, exists
 from shutil import rmtree
 from subprocess import check_output
@@ -121,6 +121,9 @@ def _do_s3_download(tar_path, tar_dir, tar_name):
     full_tar_dir = join(FAASM_DATA_DIR, tar_dir)
     if exists(full_tar_dir):
         rmtree(full_tar_dir)
+
+    if not exists(FAASM_DATA_DIR):
+        makedirs(FAASM_DATA_DIR)
 
     # Download the bundle
     print("Downloading from S3 to {}".format(tar_path))
