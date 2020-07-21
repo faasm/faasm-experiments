@@ -22,10 +22,6 @@ If running on a remote host you can then move the files:
 rsync -r ~/faasm/data <USER>@<HOST>:/home/<USER>/faasm/
 ```
 
-## Native run
-
-To run the SGD code natively, you need to download the pre-processed data, upload it to the local Redis state storage, then build and execute the main SGD function natively.
-
 # Preparing data from scratch (one off)
 
 To actually generate the parsed data in the first place, we must use exactly the same RCV1 data as the original
@@ -48,3 +44,65 @@ cd /usr/local/code/hogwild
 inv data.reuters-upload-s3
 ```
 
+## Running the Experiment on Knative
+
+Assuming around 20 nodes here. Number of workers in native is number of containers, 
+whereas number of workers in Faasm is number of Faasm runtimes (which host multiple
+workers).
+
+```bash
+
+# ---------------------
+# Native
+# ---------------------
+
+# Build container
+inv knative.build-native sgd reuters_svm
+
+# Deploy
+inv knative.deploy-native sgd reuters_svm --replicas=36
+
+# State and run - full
+inv data.reuters-state
+inv experiments.sgd-multi --native
+
+# State and run - micro
+inv data.reuters-state --micro
+inv experiments.sgd-multi --native --micro
+
+# Clean up
+inv knative.delete-native --hard sgd reuters_svm
+
+# ---------------------
+# Wasm
+# ---------------------
+
+# Deploy 
+inv knative.deploy --replicas=10
+
+# Check workers present (make sure there's not _more_ than there should be)
+inv redis.all-workers  
+
+# Upload function
+inv upload sgd reuters_svm
+
+# State and run - full
+inv data.reuters-state
+inv experiments.sgd-multi 
+
+# State and run - micro
+inv data.reuters-state --micro
+inv experiments.sgd-multi --micro
+
+# Clean up
+inv knative.delete-worker --hard
+```
+
+## Results
+
+```bash
+# SGD
+inv experiments.sgd-pull-results <user> <host>
+```
+
+Data will be downloaded to `~/faasm/sgd_reuters_svm`.

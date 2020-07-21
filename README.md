@@ -80,6 +80,11 @@ cd ../../..
 inv -l
 ```
 
+## Knative Experiments
+
+Experiments that are run on a Kubernetes cluster must be run from a machine with access 
+to the cluster that can run `kubectl` and `kn`.
+
 ## Billing Estimates
 
 To get resource measurements from the hosts running experiments we need an
