@@ -18,6 +18,7 @@ export RANLIB=${WASM_RANLIB}
 export SYSROOT=${WASM_SYSROOT}
 export LDSHARED="${WASM_LDSHARED}"
 
+export WASM_FUNC_LDFLAGS="${WASM_FUNC_LDFLAGS}"
 export WASM_BUILD=1
 
 pushd ${PROJ_ROOT}/third-party/gem3-mapper
