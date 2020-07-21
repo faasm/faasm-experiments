@@ -1,13 +1,14 @@
 # Genomics Use-case
 
-**Note 04/03/2020 - this needs updating**
-
 The genomics use-case involves multiple Faasm functions:
 
 - `gene/mapper` - the top-level entry function. This spawns a child to handle each chunk of reads data.
 - `gene/mapper_index[1-n]` - each of these functions handles the mapping for a different chunk of the index.
 
-There will be as many `gene/mapper_index` functions as there are chunks of the index. A basic division of the human genome will be into chromosomes, in this case we will have 24 `mapper_index` functions. These functions will _each_ get called once per chunk of reads data.
+There will be as many `gene/mapper_index` functions as there are chunks of the
+index. A basic division of the human genome will be into chromosomes, in this
+case we will have 24 `mapper_index` functions. These functions will _each_ get
+called once per chunk of reads data.
 
 ## Data
 
@@ -20,11 +21,13 @@ inv data.genomics-download-s3
 inv genomics.upload-data --local-copy
 ```
 
-The genomics data is shared via Faasm's shared files rather than directly through shared state.
+The genomics data is shared via Faasm's shared files rather than directly
+through shared state.
 
 ## WASM
 
-To build the genomics library to WASM, build and upload the functions you can run:
+To build the genomics library to WASM, build and upload the functions you can
+run:
 
 ```bash
 # Build
@@ -43,7 +46,8 @@ inv genomics.mapping
 
 ## Native
 
-Note, if you're building native and wasm in the same directory, be sure to clean when switching.
+Note, if you're building native and wasm in the same directory, be sure to clean
+when switching.
 
 First you need to install libfaasm natively:
 
@@ -61,7 +65,8 @@ The repo itself then describes how to use this code.
 
 ### Data and Indexing
 
-The index and reads only need to be set up once and uploaded to S3. To do this you need a native build of the indexer (described above). Then you can run:
+The index and reads only need to be set up once and uploaded to S3. To do this
+you need a native build of the indexer (described above). Then you can run:
 
 ```bash
 # Download the data
@@ -87,11 +92,14 @@ You can change threads with `-t`. Adding `-t 1` can be useful for debugging.
 
 ## Misc
 
-Lots of animal genomes at [this FTP server](ftp://ftp-trace.ncbi.nih.gov/genomes/).
+Lots of animal genomes at [this FTP
+server](ftp://ftp-trace.ncbi.nih.gov/genomes/).
 
-See the readme for the file layout. Can add more in the `download_genome.py` script.
+See the readme for the file layout. Can add more in the `download_genome.py`
+script.
 
-This page also has stuff: https://www.ensembl.org/Homo_sapiens/Info/Index (good for individual chromosomes).
+This page also has stuff: https://www.ensembl.org/Homo_sapiens/Info/Index (good
+for individual chromosomes).
 
 ## CLion
 
@@ -102,11 +110,13 @@ This page also has stuff: https://www.ensembl.org/Homo_sapiens/Info/Index (good 
 
 # Internals
 
-Mapping is handled through `mapper.c` which calls `mapper_run`. For each thread it creates a
-`mapping_stats_t` and a `mapper_search_t`.
+Mapping is handled through `mapper.c` which calls `mapper_run`. For each thread
+it creates a `mapping_stats_t` and a `mapper_search_t`.
 
-Threads are either a `mapper_pe_thread` or a `mapper_se_thread`, these are just different
-types of mapping and also live in `mapper.c`. `mapper_se_thread` is default.
+Threads are either a `mapper_pe_thread` or a `mapper_se_thread`, these are just
+different types of mapping and also live in `mapper.c`. `mapper_se_thread` is
+default.
 
-The mapper parameters tell each thread which files it's dealing with, which thread number
-it is etc.
+The mapper parameters tell each thread which files it's dealing with, which
+thread number it is etc.
+
