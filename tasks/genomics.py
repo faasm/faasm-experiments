@@ -2,7 +2,7 @@ import os
 from copy import copy
 from multiprocessing import Pool
 from os import mkdir, remove, makedirs
-from os.path import exists
+from os.path import exists, basename
 from os.path import join
 from subprocess import check_output, call
 from time import sleep
@@ -19,14 +19,15 @@ from faasmcli.util.state import upload_shared_file
 from faasmcli.util.upload_util import curl_file
 
 from tasks.util.env import EXPERIMENTS_ROOT
-from tasks.util.genomics import GENOMICS_DATA_DIR, CHROMOSOME_URLS, CHROMOSOME_NUMBERS, READ_URLS, get_reads_from_dir
+from tasks.util.genomics import GENOMICS_DATA_DIR, CHROMOSOME_URLS, CHROMOSOME_NUMBERS, READ_URLS, get_reads_from_dir, \
+    get_index_chunks_present_locally
 from tasks.util.genomics import INDEX_CHUNKS
 
 
 @task
 def mapping(ctx):
     """
-    Run genomics mapping
+    Run genomics mapping using Faasm
     """
     read_idxs, _ = get_reads_from_dir()
 
@@ -73,6 +74,33 @@ def mapping(ctx):
             completed_read_idxs.append(read_idx)
 
     print("All read chunks finished")
+
+
+def _do_native_mapping(read_idx, index_chunk):
+    print("Running native mapping for read {} on index chunk {}", read_idx, index_chunk)
+
+
+@task
+def mapping_native(ctx, nthreads=None):
+    """
+    Run genomics mapping natively
+    """
+    read_idxs, _ = get_reads_from_dir()
+    index_chunks, index_files = get_index_chunks_present_locally()
+
+    # Create an appropriately sized pool if not specified
+    if not nthreads:
+        nthreads = os.cpu_count() - 1
+
+    p = Pool(nthreads)
+
+    # Spawn a thread for every read and index chunk
+    tasks = list()
+    for read_idx in read_idxs:
+        for index_chunk in index_chunks:
+            tasks.append((read_idx, index_chunk))
+
+    p.starmap(_do_native_mapping, tasks)
 
 
 @task
@@ -164,22 +192,18 @@ def upload_data(ctx, host="localhost", local_copy=False):
 
     files_to_upload = list()
 
+    # Reads
     read_idxs, file_paths = get_reads_from_dir()
     for read_idx, file_path in zip(read_idxs, file_paths):
         files_to_upload.append((file_path, "reads_{}.fq".format(read_idx)))
 
-    for index_chunk in INDEX_CHUNKS:
-        filename = "index_{}.gem".format(index_chunk)
-        file_path = join(FAASM_DATA_DIR, "genomics", filename)
+    # Index chunks
+    _, index_files = get_index_chunks_present_locally()
+    for index_file in index_files:
+        filename = basename(index_file)
+        files_to_upload.append((index_file, filename))
 
-        if not exists(file_path):
-            print("WARNING: index file not found: {}".format(file_path))
-            continue
-        else:
-            print("Index file found: {}".format(file_path))
-
-        files_to_upload.append((file_path, filename))
-
+    # Upload
     for file_path, file_name in files_to_upload:
         if local_copy:
             dest_file = join(dest_root, file_name)

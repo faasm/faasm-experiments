@@ -1,5 +1,5 @@
 from os import listdir
-from os.path import join
+from os.path import join, exists
 
 from faasmcli.util.env import FAASM_DATA_DIR
 
@@ -33,6 +33,25 @@ CHROMOSOME_URLS = [
 ]
 
 GENOMICS_DATA_DIR = join(FAASM_DATA_DIR, "genomics")
+
+
+def get_index_chunks_present_locally():
+    idxs = list()
+    file_paths = list()
+
+    for index_chunk in INDEX_CHUNKS:
+        filename = "index_{}.gem".format(index_chunk)
+        file_path = join(FAASM_DATA_DIR, "genomics", filename)
+
+        if not exists(file_path):
+            print("WARNING: index file not found: {}".format(file_path))
+            continue
+        else:
+            print("Index file found: {}".format(file_path))
+            idxs.append(index_chunk)
+            file_paths.append(file_path)
+
+    return idxs, file_paths
 
 
 def get_reads_from_dir():
