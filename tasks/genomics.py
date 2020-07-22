@@ -206,6 +206,17 @@ def download_reads(ctx):
         check_output("wget {} -O {}".format(url, download_file), shell=True)
 
 
+def _do_file_upload(local_copy, file_path, file_name, dest_root):
+    if local_copy:
+        # Copy directly if local copy
+        dest_file = join(dest_root, file_name)
+        call("cp {} {}".format(file_path, dest_file), shell=True)
+    else:
+        # Upload if not local
+        shared_path = "genomics/{}".format(file_name)
+        upload_shared_file(host, file_path, shared_path)
+
+
 @task
 def upload_data(ctx, host="localhost", local_copy=False):
     """
@@ -228,14 +239,13 @@ def upload_data(ctx, host="localhost", local_copy=False):
         filename = basename(index_file)
         files_to_upload.append((index_file, filename))
 
-    # Upload
+    # Pool to do the work
+    p = Pool(os.cpu_count() - 1)
+    task_args = list()
     for file_path, file_name in files_to_upload:
-        if local_copy:
-            dest_file = join(dest_root, file_name)
-            call("cp {} {}".format(file_path, dest_file), shell=True)
-        else:
-            shared_path = "genomics/{}".format(file_name)
-            upload_shared_file(host, file_path, shared_path)
+        task_args.append((local_copy, file_path, file_name, dest_root))
+    
+    p.starmap(_do_file_upload, task_args)
 
 
 def _do_func_upload(idx, host, port):
