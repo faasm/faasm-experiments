@@ -54,7 +54,7 @@ def mapping(ctx, download=False):
 
             # See whether this call is still running
             call_id = call_ids[i]
-            result, output = status_call_impl(call_id, host, port)
+            result, output = status_call_impl("gene", "mapper", call_id, host, port)
             if result == STATUS_RUNNING:
                 continue
 
