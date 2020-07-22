@@ -30,7 +30,7 @@ GENOMICS_OUTPUT_DIR = join(GENOMICS_DATA_DIR, "output")
 
 
 @task
-def mapping(ctx):
+def mapping(ctx, download=False):
     """
     Run genomics mapping using Faasm
     """
@@ -60,16 +60,19 @@ def mapping(ctx):
 
             # Check for success or failure
             if result == STATUS_SUCCESS:
+                print("Read chunk {} completed.".format(read_idx))
+
                 # Download the results of this read
-                print("Read chunk {} completed. Downloading output".format(read_idx))
-                state_key = "output_read_{}".format(read_idx)
+                if download:
+                    print("Downloading output for read chunk {}.".format(read_idx))
+                    state_key = "output_read_{}".format(read_idx)
 
-                if not exists(GENOMICS_OUTPUT_DIR):
-                    makedirs(GENOMICS_OUTPUT_DIR)
+                    if not exists(GENOMICS_OUTPUT_DIR):
+                        makedirs(GENOMICS_OUTPUT_DIR)
 
-                output_file = join(GENOMICS_OUTPUT_DIR, state_key)
-                host, port = get_upload_host_port(None, None)
-                download_binary_state("gene", state_key, output_file, host=host, port=port)
+                    output_file = join(GENOMICS_OUTPUT_DIR, state_key)
+                    host, port = get_upload_host_port(None, None)
+                    download_binary_state("gene", state_key, output_file, host=host, port=port)
 
             elif result == STATUS_FAILED:
                 print("Read chunk {} failed: {}", read_idx, output)
