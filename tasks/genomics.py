@@ -7,21 +7,26 @@ from os.path import join
 from subprocess import check_output, call
 from time import sleep
 
-from invoke import task
-
 from faasmcli.tasks.upload import upload
 from faasmcli.util.call import invoke_impl, status_call_impl, STATUS_SUCCESS, STATUS_FAILED, STATUS_RUNNING
 from faasmcli.util.endpoints import get_invoke_host_port
 from faasmcli.util.endpoints import get_upload_host_port
-from faasmcli.util.env import FAASM_DATA_DIR, THIRD_PARTY_DIR, FAASM_SHARED_STORAGE_ROOT
+from faasmcli.util.env import FAASM_DATA_DIR, FAASM_SHARED_STORAGE_ROOT
 from faasmcli.util.state import download_binary_state
 from faasmcli.util.state import upload_shared_file
 from faasmcli.util.upload_util import curl_file
+from invoke import task
 
-from tasks.util.env import EXPERIMENTS_ROOT
+from tasks.util.env import EXPERIMENTS_ROOT, EXPERIMENTS_THIRD_PARTY
 from tasks.util.genomics import GENOMICS_DATA_DIR, CHROMOSOME_URLS, CHROMOSOME_NUMBERS, READ_URLS, get_reads_from_dir, \
     get_index_chunks_present_locally
 from tasks.util.genomics import INDEX_CHUNKS
+
+GEM3_DIR = join(EXPERIMENTS_THIRD_PARTY, "gem3-mapper")
+GEM3_INDEXER = join(GEM3_DIR, "bin", "gem-indexer")
+GEM3_MAPPER = join(GEM3_DIR, "bin", "gem-mapper")
+
+GENOMICS_OUTPUT_DIR = join(GENOMICS_DATA_DIR, "output")
 
 
 @task
@@ -59,11 +64,10 @@ def mapping(ctx):
                 print("Read chunk {} completed. Downloading output".format(read_idx))
                 state_key = "output_read_{}".format(read_idx)
 
-                output_dir = join(FAASM_DATA_DIR, "genomics_output")
-                if not exists(output_dir):
-                    makedirs(output_dir)
+                if not exists(GENOMICS_OUTPUT_DIR):
+                    makedirs(GENOMICS_OUTPUT_DIR)
 
-                output_file = join(output_dir, state_key)
+                output_file = join(GENOMICS_OUTPUT_DIR, state_key)
                 host, port = get_upload_host_port(None, None)
                 download_binary_state("gene", state_key, output_file, host=host, port=port)
 
@@ -76,8 +80,24 @@ def mapping(ctx):
     print("All read chunks finished")
 
 
-def _do_native_mapping(read_idx, index_chunk):
-    print("Running native mapping for read {} on index chunk {}", read_idx, index_chunk)
+def _do_native_mapping(reads_file, index_file, output_file):
+    if not exists(GEM3_MAPPER):
+        print("Did not find gem3 mapper at {}".format(GEM3_MAPPER))
+        exit(1)
+
+    print("Native mapping {} -> {}".format(basename(reads_file), basename(index_file)))
+
+    cmd = [
+        GEM3_MAPPER,
+        "-I {}".format(index_file),
+        "-i {}".format(reads_file),
+        "-o {}".format(output_file)
+    ]
+
+    cmd = " ".join(cmd)
+    print(cmd)
+
+    check_output(cmd, cwd=GEM3_DIR, shell=True)
 
 
 @task
@@ -85,7 +105,7 @@ def mapping_native(ctx, nthreads=None):
     """
     Run genomics mapping natively
     """
-    read_idxs, _ = get_reads_from_dir()
+    read_idxs, read_files = get_reads_from_dir()
     index_chunks, index_files = get_index_chunks_present_locally()
 
     # Create an appropriately sized pool if not specified
@@ -94,13 +114,17 @@ def mapping_native(ctx, nthreads=None):
 
     p = Pool(nthreads)
 
-    # Spawn a thread for every read and index chunk
-    tasks = list()
-    for read_idx in read_idxs:
-        for index_chunk in index_chunks:
-            tasks.append((read_idx, index_chunk))
+    if not exists(GENOMICS_OUTPUT_DIR):
+        makedirs(GENOMICS_OUTPUT_DIR)
 
-    p.starmap(_do_native_mapping, tasks)
+    # Spawn a thread for every read and index chunk
+    func_args = list()
+    for read_idx, read_file in zip(read_idxs, read_files):
+        for index_chunk, index_file in zip(index_chunks, index_files):
+            output_file = join(GENOMICS_OUTPUT_DIR, "native_{}_{}.sam".format(read_idx, index_chunk))
+            func_args.append((read_file, index_file, output_file))
+
+    p.starmap(_do_native_mapping, func_args)
 
 
 @task
@@ -138,27 +162,25 @@ def index_genome(ctx):
     """
     Run indexing
     """
-    work_dir = join(THIRD_PARTY_DIR, "gem3-mapper")
     shell_env = copy(os.environ)
     shell_env["LD_LIBRARY_PATH"] = "/usr/local/lib:{}".format(shell_env.get("LD_LIBRARY_PATH", ""))
 
-    binary = join(work_dir, "bin", "gem-indexer")
-    if not exists(binary):
-        raise RuntimeError("Expected to find executable at {}".format(binary))
+    if not exists(GEM3_INDEXER):
+        raise RuntimeError("Expected to find executable at {}".format(GEM3_INDEXER))
 
     for idx, name in enumerate(CHROMOSOME_NUMBERS):
         input_file = join(FAASM_DATA_DIR, "genomics", "Homo_sapiens.GRCh38.dna.chromosome.{}.fa".format(name))
         output_file = join(FAASM_DATA_DIR, "genomics", "index_{}".format(idx))
 
         cmd = [
-            binary,
+            GEM3_INDEXER,
             "-i {}".format(input_file),
             "-o {}".format(output_file),
         ]
 
         cmd_str = " ".join(cmd)
         print(cmd_str)
-        call(cmd_str, shell=True, env=shell_env, cwd=work_dir)
+        call(cmd_str, shell=True, env=shell_env, cwd=GEM3_DIR)
 
         # Remove unnecessary files
         info_file = "{}.info".format(output_file)

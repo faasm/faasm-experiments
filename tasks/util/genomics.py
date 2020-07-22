@@ -44,12 +44,12 @@ def get_index_chunks_present_locally():
         file_path = join(FAASM_DATA_DIR, "genomics", filename)
 
         if not exists(file_path):
-            print("WARNING: index file not found: {}".format(file_path))
             continue
         else:
-            print("Index file found: {}".format(file_path))
             idxs.append(index_chunk)
             file_paths.append(file_path)
+
+    print("Found indexes: {}".format(idxs))
 
     return idxs, file_paths
 
@@ -80,6 +80,6 @@ def get_reads_from_dir():
         file_path = join(reads_dir, reads_filename)
         file_paths.append(file_path)
 
-        print("Reads file found: {}".format(file_path))
+    print("Found reads: {}".format(read_idxs))
 
     return read_idxs, file_paths

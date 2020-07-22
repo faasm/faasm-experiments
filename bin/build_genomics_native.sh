@@ -12,9 +12,10 @@ pushd ${PROJ_ROOT}/third-party/gem3-mapper
 ./configure --enable-cuda=no
 
 # Release build
-make -j
+N_PROC=$(nproc --ignore=1)
+#make -j ${N_PROC}
 
 # Debug build
-# make debug
+make -j ${N_PROC} debug
 
 popd

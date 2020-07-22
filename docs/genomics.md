@@ -67,7 +67,11 @@ One that's set up, you can run the following:
 ./bin/build_genomics_native.sh
 ```
 
-The repo itself then describes how to use this code.
+You can then run the native mapping with:
+
+```bash
+inv genomics.mapping-native
+```
 
 ### Data and Indexing
 
@@ -85,16 +89,6 @@ inv genomics.index-genome
 # Do the upload
 inv data.genomics-upload-s3
 ```
-
-### Mapping
-
-To map a reads file you can do the following:
-
-```bash
-./bin/gem-mapper -I data/human_c_20_idx.gem -i data/reads_1.fq -o data/my_output.sam
-```
-
-You can change threads with `-t`. Adding `-t 1` can be useful for debugging.
 
 ## Misc
 
