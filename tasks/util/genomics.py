@@ -25,9 +25,7 @@ CHROMOSOME_NUMBERS = [str(i) for i in range(1, 23)]
 CHROMOSOME_NUMBERS.append("X")
 CHROMOSOME_NUMBERS.append("Y")
 
-# TEMP - hack this
-# INDEX_CHUNKS = range(1, 25)
-INDEX_CHUNKS = range(1, 3)
+INDEX_CHUNKS = range(1, 25)
 
 CHROMOSOME_URLS = [
     "ftp://ftp.ensembl.org/pub/release-97/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.{}.fa.gz".format(i)
@@ -47,7 +45,6 @@ def get_reads_from_dir():
     reads_dir = join(FAASM_DATA_DIR, "genomics")
     for reads_filename in listdir(reads_dir):
         if not reads_filename.startswith("reads_"):
-            print("Skipping file {}".format(reads_filename))
             continue
 
         # Work out which chunk we're dealing with
@@ -64,6 +61,6 @@ def get_reads_from_dir():
         file_path = join(reads_dir, reads_filename)
         file_paths.append(file_path)
 
-        print("Found reads file at {} for read chunk {}".format(file_path, read_idx))
+        print("Reads file found: {}".format(file_path))
 
     return read_idxs, file_paths

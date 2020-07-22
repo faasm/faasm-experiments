@@ -1,5 +1,6 @@
 import os
 from copy import copy
+from multiprocessing import Pool
 from os import mkdir, remove, makedirs
 from os.path import exists
 from os.path import join
@@ -170,6 +171,13 @@ def upload_data(ctx, host="localhost", local_copy=False):
     for index_chunk in INDEX_CHUNKS:
         filename = "index_{}.gem".format(index_chunk)
         file_path = join(FAASM_DATA_DIR, "genomics", filename)
+
+        if not exists(file_path):
+            print("WARNING: index file not found: {}".format(file_path))
+            continue
+        else:
+            print("Index file found: {}".format(file_path))
+
         files_to_upload.append((file_path, filename))
 
     for file_path, file_name in files_to_upload:
@@ -179,6 +187,15 @@ def upload_data(ctx, host="localhost", local_copy=False):
         else:
             shared_path = "genomics/{}".format(file_name)
             upload_shared_file(host, file_path, shared_path)
+
+
+def _do_func_upload(idx, host, port):
+    func_name = "mapper_index{}".format(idx)
+    print("Uploading function gene/{} to {}:{}".format(func_name, host, port))
+
+    file_path = join(EXPERIMENTS_ROOT, "third-party/gem3-mapper/wasm_bin/gem-mapper")
+    url = "http://{}:{}/f/gene/{}".format(host, port, func_name)
+    curl_file(url, file_path)
 
 
 @task
@@ -196,10 +213,6 @@ def upload_funcs(ctx, host="localhost", port=None):
     # Upload the worker functions (one for each index chunk)
     host, port = get_upload_host_port(host, port)
 
-    for i in INDEX_CHUNKS:
-        func_name = "mapper_index{}".format(i)
-        print("Uploading function gene/{} to {}:{}".format(func_name, host, port))
-
-        file_path = join(EXPERIMENTS_ROOT, "third-party/gem3-mapper/wasm_bin/gem-mapper")
-        url = "http://{}:{}/f/gene/{}".format(host, port, func_name)
-        curl_file(url, file_path)
+    args = [(idx, host, port) for idx in INDEX_CHUNKS]
+    p = Pool(3)
+    p.starmap(_do_func_upload, args)
