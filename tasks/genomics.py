@@ -206,7 +206,7 @@ def download_reads(ctx):
         check_output("wget {} -O {}".format(url, download_file), shell=True)
 
 
-def _do_file_upload(local_copy, file_path, file_name, dest_root):
+def _do_file_upload(host, local_copy, file_path, file_name, dest_root):
     if local_copy:
         # Copy directly if local copy
         dest_file = join(dest_root, file_name)
@@ -243,7 +243,7 @@ def upload_data(ctx, host="localhost", local_copy=False):
     p = Pool(os.cpu_count() - 1)
     task_args = list()
     for file_path, file_name in files_to_upload:
-        task_args.append((local_copy, file_path, file_name, dest_root))
+        task_args.append((host, local_copy, file_path, file_name, dest_root))
     
     p.starmap(_do_file_upload, task_args)
 
