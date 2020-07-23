@@ -26,6 +26,18 @@ inv genomics.upload-data --local-copy
 The genomics data is shared via Faasm's shared files rather than directly
 through shared state.
 
+### Increasing Reads Volume
+
+To increase the size of the input data you can just duplicate the existing reads file:
+
+```bash
+cd ~/faasm/data/genomics
+cp reads_1.fq reads_2.fq
+cp reads_1.fq reads_3.fq
+
+# And so on
+```
+
 ## WASM
 
 To build the genomics library to WASM, build and upload the functions you can

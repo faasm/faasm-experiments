@@ -121,8 +121,7 @@ def mapping_native(ctx, nthreads=None):
     start_time = time()
 
     # Create an appropriately sized pool if not specified
-    if not nthreads:
-        nthreads = os.cpu_count() - 1
+    nthreads = int(nthreads) if nthreads else os.cpu_count() - 1
 
     p = Pool(nthreads)
 
