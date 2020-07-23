@@ -36,6 +36,8 @@ def mapping(ctx, download=False):
     """
     read_idxs, _ = get_reads_from_dir()
 
+    start_time = time()
+
     # Iterate through and make the calls to the worker
     call_ids = list()
     for read_idx in read_idxs:
@@ -80,7 +82,10 @@ def mapping(ctx, download=False):
             # Check if we're done
             completed_read_idxs.append(read_idx)
 
-    print("All read chunks finished")
+    print("-----------------------------------------")
+    print("FAASM MAPPING COMPLETE")
+    print("Time: {:.2f}s".format(time() - start_time))
+    print("-----------------------------------------")
 
 
 def _do_native_mapping(reads_file, index_file, output_file):
