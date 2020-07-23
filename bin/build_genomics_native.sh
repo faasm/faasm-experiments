@@ -13,9 +13,9 @@ pushd ${PROJ_ROOT}/third-party/gem3-mapper
 
 # Release build
 N_PROC=$(nproc --ignore=1)
-#make -j ${N_PROC}
+make -j ${N_PROC}
 
 # Debug build
-make -j ${N_PROC} debug
+# make -j ${N_PROC} debug
 
 popd

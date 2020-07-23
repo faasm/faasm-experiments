@@ -4,8 +4,8 @@ from multiprocessing import Pool
 from os import mkdir, remove, makedirs
 from os.path import exists, basename
 from os.path import join
-from subprocess import check_output, call
-from time import sleep
+from subprocess import check_output, run, PIPE, STDOUT
+from time import sleep, time
 
 from faasmcli.tasks.upload import upload
 from faasmcli.util.call import invoke_impl, status_call_impl, STATUS_SUCCESS, STATUS_FAILED, STATUS_RUNNING
@@ -98,9 +98,11 @@ def _do_native_mapping(reads_file, index_file, output_file):
     ]
 
     cmd = " ".join(cmd)
-    print(cmd)
-
-    check_output(cmd, cwd=GEM3_DIR, shell=True)
+    res = run(cmd, cwd=GEM3_DIR, shell=True, stdout=PIPE, stderr=STDOUT)
+    if res.returncode != 0:
+        print("Mapping failed: ")
+        print(res.stdout)
+        exit(1)
 
 
 @task
@@ -110,6 +112,8 @@ def mapping_native(ctx, nthreads=None):
     """
     read_idxs, read_files = get_reads_from_dir()
     index_chunks, index_files = get_index_chunks_present_locally()
+
+    start_time = time()
 
     # Create an appropriately sized pool if not specified
     if not nthreads:
@@ -128,6 +132,11 @@ def mapping_native(ctx, nthreads=None):
             func_args.append((read_file, index_file, output_file))
 
     p.starmap(_do_native_mapping, func_args)
+
+    print("-----------------------------------------")
+    print("NATIVE MAPPING COMPLETE")
+    print("Time: {:.2f}s".format(time() - start_time))
+    print("-----------------------------------------")
 
 
 @task
