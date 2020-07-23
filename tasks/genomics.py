@@ -39,7 +39,7 @@ def mapping(ctx, download=False):
     # Iterate through and make the calls to the worker
     call_ids = list()
     for read_idx in read_idxs:
-        print("Invoking worker for read chunk {}".format(read_idx))
+        print("Mapping read chunk {}".format(read_idx))
         call_id = invoke_impl("gene", "mapper", input="{}".format(read_idx), asynch=True, poll=False)
         call_ids.append(call_id)
 
@@ -50,11 +50,11 @@ def mapping(ctx, download=False):
 
     while len(completed_read_idxs) < len(read_idxs):
         for i, read_idx in enumerate(read_idxs):
-            sleep(0.5)
+            sleep(1)
 
             # See whether this call is still running
             call_id = call_ids[i]
-            result, output = status_call_impl("gene", "mapper", call_id, host, port)
+            result, output = status_call_impl("gene", "mapper", call_id, host, port, quiet=True)
             if result == STATUS_RUNNING:
                 continue
 
