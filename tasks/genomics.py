@@ -8,6 +8,7 @@ from subprocess import check_output, run, PIPE, STDOUT
 from time import sleep, time
 
 from faasmcli.tasks.upload import upload
+import faasmcli.tasks.state as state
 from faasmcli.util.call import invoke_impl, status_call_impl, STATUS_SUCCESS, STATUS_FAILED, STATUS_RUNNING
 from faasmcli.util.endpoints import get_invoke_host_port
 from faasmcli.util.endpoints import get_upload_host_port
@@ -27,6 +28,8 @@ GEM3_INDEXER = join(GEM3_DIR, "bin", "gem-indexer")
 GEM3_MAPPER = join(GEM3_DIR, "bin", "gem-mapper")
 
 GENOMICS_OUTPUT_DIR = join(GENOMICS_DATA_DIR, "output")
+
+GENOMICS_USER = "gene"
 
 
 @task
@@ -125,14 +128,15 @@ def mapping_native(ctx, nthreads=None):
 
     p = Pool(nthreads)
 
-    if not exists(GENOMICS_OUTPUT_DIR):
-        makedirs(GENOMICS_OUTPUT_DIR)
+    output_dir = join(GENOMICS_OUTPUT_DIR, "native")
+    if not exists(output_dir):
+        makedirs(output_dir)
 
     # Spawn a thread for every read and index chunk
     func_args = list()
     for read_idx, read_file in zip(read_idxs, read_files):
         for index_chunk, index_file in zip(index_chunks, index_files):
-            output_file = join(GENOMICS_OUTPUT_DIR, "native_{}_{}.sam".format(read_idx, index_chunk))
+            output_file = join(output_dir, "native_{}_{}.sam".format(read_idx, index_chunk))
             func_args.append((read_file, index_file, output_file))
 
     p.starmap(_do_native_mapping, func_args)
@@ -196,7 +200,7 @@ def index_genome(ctx):
 
         cmd_str = " ".join(cmd)
         print(cmd_str)
-        call(cmd_str, shell=True, env=shell_env, cwd=GEM3_DIR)
+        run(cmd_str, shell=True, env=shell_env, cwd=GEM3_DIR)
 
         # Remove unnecessary files
         info_file = "{}.info".format(output_file)
@@ -223,7 +227,7 @@ def _do_file_upload(host, local_copy, file_path, file_name, dest_root):
     if local_copy:
         # Copy directly if local copy
         dest_file = join(dest_root, file_name)
-        call("cp {} {}".format(file_path, dest_file), shell=True)
+        run("cp {} {}".format(file_path, dest_file), shell=True)
     else:
         # Upload if not local
         shared_path = "genomics/{}".format(file_name)
@@ -257,7 +261,7 @@ def upload_data(ctx, host="localhost", local_copy=False):
     task_args = list()
     for file_path, file_name in files_to_upload:
         task_args.append((host, local_copy, file_path, file_name, dest_root))
-    
+
     p.starmap(_do_file_upload, task_args)
 
 
@@ -286,5 +290,29 @@ def upload_funcs(ctx, host="localhost", port=None):
     host, port = get_upload_host_port(host, port)
 
     args = [(idx, host, port) for idx in INDEX_CHUNKS]
-    p = Pool(3)
+    p = Pool(os.cpu_count())
     p.starmap(_do_func_upload, args)
+
+
+@task
+def download_output(ctx):
+    """
+    Downloads the resuts from all the genomics functions
+    """
+    read_idxs, _ = get_reads_from_dir()
+    index_chunks, _ = get_index_chunks_present_locally()
+
+    output_dir = join(GENOMICS_OUTPUT_DIR, "faasm")
+    if not exists(output_dir):
+        makedirs(output_dir)
+
+    task_args = list()
+    for read_idx in read_idxs:
+        for index_chunk in index_chunks:
+            output_filename = "faasm_{}_{}.sam".format(read_idx, index_chunk)
+            output_file = join(output_dir, output_filename)
+            state_key = "map_out_{}_{}".format(read_idx, index_chunk)
+            task_args.append((GENOMICS_USER, state_key, output_file))
+
+    p = Pool(os.cpu_count())
+    p.starmap(state.download, task_args)
