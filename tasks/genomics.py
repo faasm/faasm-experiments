@@ -275,9 +275,13 @@ def _do_func_upload(idx, host, port):
 
 
 @task
-def upload_funcs(ctx, host="localhost", port=None):
+def upload_funcs(ctx, host="localhost", port=None, peridx=False):
     """
     Upload all the genomics functions
+
+    If set to peridx=True, we will be deploying one function per index chunk,
+    this may make it easier to schedule functions with the state associated
+    with their index chunk.
     """
 
     # When uploading genomics, we are uploading the mapper entrypoint as a normal
@@ -289,9 +293,16 @@ def upload_funcs(ctx, host="localhost", port=None):
     # Upload the worker functions (one for each index chunk)
     host, port = get_upload_host_port(host, port)
 
-    args = [(idx, host, port) for idx in INDEX_CHUNKS]
-    p = Pool(os.cpu_count())
-    p.starmap(_do_func_upload, args)
+    if peridx:
+        # Upload one function per index
+        args = [(idx, host, port) for idx in INDEX_CHUNKS]
+        p = Pool(os.cpu_count())
+        p.starmap(_do_func_upload, args)
+    else:
+        # Just upload one function that will be agnostic to index
+        file_path = join(EXPERIMENTS_ROOT, "third-party/gem3-mapper/wasm_bin/gem-mapper")
+        url = "http://{}:{}/f/gene/mapper_index".format(host, port)
+        curl_file(url, file_path)
 
 
 @task
