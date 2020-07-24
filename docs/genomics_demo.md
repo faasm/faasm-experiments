@@ -1,18 +1,27 @@
 # Running Native
 
+## Set-up
+
+Beforehand we need to run:
+
+```bash
+PATH=$PATH:${HOME}/faasm-experiments-bm/third-party/gem3-mapper/bin
+```
+
+## Demo
+
 Show data on local machine:
 
 ```bash
 cd ~/faasm/data/genomics
+ls 
+
+less reads_1.fq
+less index_10.gem
+
 du -sh .
-ls -alh | less
-```
-
-Show we have a normal build of gem3-mapper:
-
-```bash
-PATH=$PATH:${HOME}/faasm-experiments-bm/third-party/gem3-mapper/bin
-gem-mapper
+du -sh reads*
+du -sh index* | less
 ```
 
 Show running a read vs. an index:
@@ -34,10 +43,8 @@ fm genomics.mapping-native
 List the output:
 
 ```bash
-du -sh ~/faasm/data/genomics/output
-ls ~/faasm/data/genomics/output
-
-less ~/faasm/data/genomics/output/native_1_10.sam 
+ls ~/faasm/data/genomics/output/native
+du -sh ~/faasm/data/genomics/output 
 ```
 
 # Faasm
