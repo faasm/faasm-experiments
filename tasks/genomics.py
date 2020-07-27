@@ -324,13 +324,15 @@ def download_output(ctx):
     if not exists(output_dir):
         makedirs(output_dir)
 
+    host, port = get_upload_host_port(None, None)
+
     task_args = list()
     for read_idx in read_idxs:
         for index_chunk in index_chunks:
             output_filename = "faasm_{}_{}.sam".format(read_idx, index_chunk)
             output_file = join(output_dir, output_filename)
             state_key = "map_out_{}_{}".format(read_idx, index_chunk)
-            task_args.append((GENOMICS_USER, state_key, output_file))
+            task_args.append((GENOMICS_USER, state_key, output_file, host, port))
 
     p = Pool(os.cpu_count())
-    p.starmap(state.download, task_args)
+    p.starmap(download_binary_state, task_args)

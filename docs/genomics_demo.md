@@ -88,7 +88,13 @@ inv genomics.mapping
 Download the output:
 
 ```bash
-inv state.download gene map_out_1_10 /tmp/faasm_out_1_10.sam
-
 inv genomics.download-output
 ```
+
+Get a call graph for one of the reads:
+
+```bash
+# On your local machine
+scp scs17@koala10:/tmp/exec_graph_<call_id>.png
+```
+
