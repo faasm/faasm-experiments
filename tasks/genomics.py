@@ -7,6 +7,7 @@ from os.path import join
 from subprocess import check_output, run, PIPE, STDOUT
 from time import sleep, time
 
+from faasmcli.tasks.call import exec_graph
 from faasmcli.tasks.upload import upload
 import faasmcli.tasks.state as state
 from faasmcli.util.call import invoke_impl, status_call_impl, STATUS_SUCCESS, STATUS_FAILED, STATUS_RUNNING
@@ -84,6 +85,12 @@ def mapping(ctx, download=False):
 
             # Check if we're done
             completed_read_idxs.append(read_idx)
+
+    for call_id in call_ids:
+        exec_graph(
+            ctx, call_id=call_id, host=host, headless=True,
+            output_file="/tmp/exec_graph_{}.png".format(call_id)
+        )
 
     print("-----------------------------------------")
     print("FAASM MAPPING COMPLETE")
