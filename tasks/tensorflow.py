@@ -1,38 +1,25 @@
-from os import cpu_count
-from os.path import exists
-from os.path import join
+from os import cpu_count, makedirs, walk
+from os.path import exists, join
 from shutil import rmtree
-from subprocess import check_output, call
-from invoke import task
-from faasmcli.util.toolchain import (
-    WASM_HOST,
-    BASE_CONFIG_CMD,
-    WASM_CFLAGS,
-    WASM_CXXFLAGS,
-    WASM_LDFLAGS,
-)
-from tasks.util.env import (
-    EXPERIMENTS_THIRD_PARTY,
-    EXPERIMENTS_FUNC_DIR,
-    EXPERIMENTS_ROOT,
-)
+from subprocess import call, check_output
+
 from faasmcli.util.compile import wasm_cmake, wasm_copy_upload
-
-from os import makedirs, walk
-
 from faasmcli.util.endpoints import get_upload_host_port
-from faasmcli.util.env import FUNC_DIR, FAASM_SHARED_STORAGE_ROOT
+from faasmcli.util.env import FAASM_SHARED_STORAGE_ROOT, FUNC_DIR
 from faasmcli.util.state import upload_binary_state, upload_shared_file
+from faasmcli.util.toolchain import (BASE_CONFIG_CMD, WASM_CFLAGS,
+                                     WASM_CXXFLAGS, WASM_HOST, WASM_LDFLAGS)
+from invoke import task
 
-
-_FUNC_BUILD_DIR = join(EXPERIMENTS_ROOT, "build", "func")
+from tasks.util.env import (EXPERIMENTS_FUNC_BUILD_DIR, EXPERIMENTS_FUNC_DIR,
+                            EXPERIMENTS_ROOT, EXPERIMENTS_THIRD_PARTY)
 
 
 @task
-def func(clean=False):
-    wasm_cmake(EXPERIMENTS_FUNC_DIR, _FUNC_BUILD_DIR, "image", clean=clean)
+def func(ctx, clean=False):
+    wasm_cmake(EXPERIMENTS_FUNC_DIR, EXPERIMENTS_FUNC_BUILD_DIR, "image", clean=clean)
 
-    wasm_file = join(_FUNC_BUILD_DIR, "tf", "image.wasm")
+    wasm_file = join(EXPERIMENTS_FUNC_BUILD_DIR, "tf", "image.wasm")
     wasm_copy_upload("tf", "image", wasm_file)
 
 
@@ -117,4 +104,3 @@ def upload(ctx, host=None, local_copy=False):
             else:
                 shared_path = "tfdata/{}".format(filename)
                 upload_shared_file(host, file_path, shared_path)
-

@@ -1,10 +1,11 @@
 from os import makedirs
-from os.path import join, exists
+from os.path import exists, join
 from shutil import rmtree
 from subprocess import run
 
-from tasks.util.env import EXPERIMENTS_ROOT, EXPERIMENTS_THIRD_PARTY  
 from invoke import task
+
+from tasks.util.env import EXPERIMENTS_ROOT, EXPERIMENTS_THIRD_PARTY
 
 _BUILD_DIR = join(EXPERIMENTS_ROOT, "build", "cmake")
 _BIN_DIR = join(_BUILD_DIR, "bin")
@@ -42,4 +43,3 @@ def r(ctx, target):
         cwd=_BIN_DIR,
         shell=True,
     )
-

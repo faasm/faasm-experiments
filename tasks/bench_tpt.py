@@ -1,12 +1,12 @@
 from decimal import Decimal
 from os import makedirs
-from os.path import join, exists
+from os.path import exists, join
 from subprocess import call
 
 import numpy as np
+from faasmcli.util.env import (BENCHMARK_BUILD, PROJ_ROOT, RESULT_DIR,
+                               set_benchmark_env)
 from invoke import task
-
-from faasmcli.util.env import RESULT_DIR, PROJ_ROOT, set_benchmark_env, BENCHMARK_BUILD
 
 from tasks.util.env import EXPERIMENTS_ROOT
 
@@ -41,7 +41,11 @@ def _write_tpt_lat(run_num, runtime_name, target_tpt, csv_out):
     n_diff = abs(n_times - n_lats)
 
     tolerance = int(n_lats * 0.01)
-    msg = "Requests and latencies count doesn't match within tolerance ({} vs {})".format(n_times, n_lats)
+    msg = (
+        "Requests and latencies count doesn't match within tolerance ({} vs {})".format(
+            n_times, n_lats
+        )
+    )
     assert n_diff <= tolerance, msg
 
     assert len(durations) == 1, "Found multiple durations"
@@ -65,7 +69,8 @@ def _write_tpt_lat(run_num, runtime_name, target_tpt, csv_out):
             lat_median,
             lat_90,
             lat_99,
-        ))
+        )
+    )
 
     csv_out.flush()
 
@@ -81,7 +86,9 @@ def bench_tpt(ctx, runtime=None):
         makedirs(RESULT_DIR)
 
     csv_out = open(OUTPUT_FILE, "w")
-    csv_out.write("RunNum,Runtime,Duration,TargetThroughput,Throughput,LatencyMed,Latency90,Latency99\n")
+    csv_out.write(
+        "RunNum,Runtime,Duration,TargetThroughput,Throughput,LatencyMed,Latency90,Latency99\n"
+    )
     csv_out.flush()
 
     set_benchmark_env()
@@ -123,12 +130,14 @@ def bench_tpt(ctx, runtime=None):
         def _do_faasm_runs(faasm_name, this_runs):
             for this_delay, this_length in this_runs:
                 # Run the bench
-                this_cmd = " ".join([
-                    join(BENCHMARK_BUILD, "bin", "bench_tpt"),
-                    "warm" if faasm_name == "faasm-warm" else "cold",
-                    this_delay,
-                    this_length,
-                ])
+                this_cmd = " ".join(
+                    [
+                        join(BENCHMARK_BUILD, "bin", "bench_tpt"),
+                        "warm" if faasm_name == "faasm-warm" else "cold",
+                        this_delay,
+                        this_length,
+                    ]
+                )
                 _exec_cmd(this_cmd)
 
                 # Write the result
@@ -137,45 +146,51 @@ def bench_tpt(ctx, runtime=None):
 
         if runtime == "faasm-cold" or runtime is None:
             # NOTE: first number is in microseconds
-            _do_faasm_runs("faasm-cold", [
-                ("10000000", "30000"),
-                ("6000000", "20000"),
-                ("2000000", "15000"),
-                ("1000000", "15000"),
-                ("500000", "15000"),
-                ("250000", "15000"),
-                ("100000", "10000"),
-                ("50000", "10000"),
-                ("25000", "10000"),
-                ("10000", "10000"),
-                ("5000", "10000"),
-                ("2500", "10000"),
-                ("1000", "10000"),
-                ("750", "10000"),
-            ])
+            _do_faasm_runs(
+                "faasm-cold",
+                [
+                    ("10000000", "30000"),
+                    ("6000000", "20000"),
+                    ("2000000", "15000"),
+                    ("1000000", "15000"),
+                    ("500000", "15000"),
+                    ("250000", "15000"),
+                    ("100000", "10000"),
+                    ("50000", "10000"),
+                    ("25000", "10000"),
+                    ("10000", "10000"),
+                    ("5000", "10000"),
+                    ("2500", "10000"),
+                    ("1000", "10000"),
+                    ("750", "10000"),
+                ],
+            )
 
         if runtime == "faasm-warm" or runtime is None:
             # NOTE: first number is in microseconds
-            _do_faasm_runs("faasm-warm", [
-                ("10000000", "30000"),
-                ("6000000", "20000"),
-                ("2000000", "15000"),
-                ("1000000", "15000"),
-                ("500000", "15000"),
-                ("250000", "15000"),
-                ("100000", "10000"),
-                ("50000", "10000"),
-                ("25000", "10000"),
-                ("10000", "10000"),
-                ("5000", "10000"),
-                ("2500", "10000"),
-                ("1000", "10000"),
-                ("500", "10000"),
-                ("250", "10000"),
-                ("125", "10000"),
-                ("75", "10000"),
-                ("50", "10000"),
-                ("25", "10000"),
-            ])
+            _do_faasm_runs(
+                "faasm-warm",
+                [
+                    ("10000000", "30000"),
+                    ("6000000", "20000"),
+                    ("2000000", "15000"),
+                    ("1000000", "15000"),
+                    ("500000", "15000"),
+                    ("250000", "15000"),
+                    ("100000", "10000"),
+                    ("50000", "10000"),
+                    ("25000", "10000"),
+                    ("10000", "10000"),
+                    ("5000", "10000"),
+                    ("2500", "10000"),
+                    ("1000", "10000"),
+                    ("500", "10000"),
+                    ("250", "10000"),
+                    ("125", "10000"),
+                    ("75", "10000"),
+                    ("50", "10000"),
+                    ("25", "10000"),
+                ],
+            )
 
     csv_out.close()

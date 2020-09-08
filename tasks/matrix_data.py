@@ -7,7 +7,8 @@ from pyfaasm.config import MatrixConf
 from pyfaasm.matrix import random_matrix
 from pyfaasm.matrix_data import subdivide_matrix_into_files
 
-from tasks.util.matrices import get_matrix_dir, MATRIX_CONF_STATE_KEY, SUBMATRICES_KEY_A, SUBMATRICES_KEY_B
+from tasks.util.matrices import (MATRIX_CONF_STATE_KEY, SUBMATRICES_KEY_A,
+                                 SUBMATRICES_KEY_B, get_matrix_dir)
 
 
 @task
@@ -36,7 +37,11 @@ def generate(ctx, matrix_size, n_splits):
     params_path = join(data_dir, MATRIX_CONF_STATE_KEY)
 
     # Write params to file
-    print("Generating {}x{} matrix with {} splits".format(matrix_size, matrix_size, n_splits))
+    print(
+        "Generating {}x{} matrix with {} splits".format(
+            matrix_size, matrix_size, n_splits
+        )
+    )
     params = np.array((matrix_size, n_splits), dtype=int32)
     with open(params_path, "wb") as fh:
         fh.write(params.tobytes())

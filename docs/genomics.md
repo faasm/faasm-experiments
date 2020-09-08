@@ -49,7 +49,7 @@ run:
 ./bin/build_genomics.sh
 
 # Build the main mapper kick-off function
-inv compile gene mapper --clean
+inv genomics.func --clean
 inv upload gene mapper
 
 # Upload

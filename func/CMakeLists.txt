@@ -13,5 +13,7 @@ if (FAASM_BUILD_TYPE STREQUAL "wasm")
     SET(CMAKE_EXECUTABLE_SUFFIX ".wasm")
 endif ()
 
+add_subdirectory(gene)
+add_subdirectory(polybench)
 add_subdirectory(tf)
 

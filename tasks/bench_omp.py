@@ -1,16 +1,15 @@
-from invoke import task
-from faasmcli.util.call import invoke_impl
-
-import time
 import subprocess
+import time
 from subprocess import call, run
 
 import redis
+from faasmcli.util.call import invoke_impl
+from invoke import task
 
 
 @task
 def multi_pi(ctx, number_times=6):
-    backoff = lambda x: min(max(1, x // 2),  number_times)
+    backoff = lambda x: min(max(1, x // 2), number_times)
 
     output_file = "/usr/local/code/faasm/wasm/omp/multi_pi/bench.csv"
     # * 2 in this experiment since starting from `- iterations` instead of 0
@@ -45,7 +44,7 @@ def multi_pi(ctx, number_times=6):
                     num_times += 1
 
     times = list(map(int, r.lrange(times_key, 0, num_times)))
-    assert(len(times) == num_times)
+    assert len(times) == num_times
     idx = 0
 
     with open(output_file, "w") as csv:
@@ -57,6 +56,7 @@ def multi_pi(ctx, number_times=6):
                         result = f"{iter_name},{num_threads},{mode},{times[idx]}\n"
                         idx += 1
                         csv.write(result)
+
 
 @task
 def multi_cr(ctx, debug=False, num_times=200, num_threads=1):
@@ -82,7 +82,15 @@ def multi_cr(ctx, debug=False, num_times=200, num_threads=1):
             cmd = f"{num_threads} {num_times} 0"
             print(f"NATIVE: running omp/multi_cr-- {cmd}")
             # t_native = run(["/usr/local/code/faasm/ninja-build/bin/multi_cr", f"{num_threads}", "1", "0"], stdout=subprocess.PIPE).stdout.decode('utf-8')
-            t_native = run(["/usr/local/code/faasm/ninja-build/bin/multi_cr", f"{num_threads}", f"{num_times}", "0"], stdout=subprocess.PIPE).stdout.decode('utf-8')
+            t_native = run(
+                [
+                    "/usr/local/code/faasm/ninja-build/bin/multi_cr",
+                    f"{num_threads}",
+                    f"{num_times}",
+                    "0",
+                ],
+                stdout=subprocess.PIPE,
+            ).stdout.decode("utf-8")
             csv.write(t_native)
 
             # WasmMP
@@ -112,5 +120,3 @@ def multi_cr(ctx, debug=False, num_times=200, num_threads=1):
                 csv.write(wasm_line)
 
             r.flushall()
-
-

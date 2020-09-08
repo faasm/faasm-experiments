@@ -1,32 +1,17 @@
-from os import makedirs, mkdir, cpu_count
-from os.path import exists
-from os.path import join
+from os import cpu_count, makedirs, mkdir
+from os.path import exists, join
 
-from invoke import task
-
-from faasmcli.util.env import (
-    PROJ_ROOT,
-    FAASM_TOOLCHAIN_FILE,
-    SYSROOT_INSTALL_PREFIX,
-    FAASM_INSTALL_DIR,
-    FAASM_RUNTIME_ROOT,
-    WASM_DIR,
-)
-from faasmcli.util.env import THIRD_PARTY_DIR
+from faasmcli.util.env import (FAASM_INSTALL_DIR, FAASM_RUNTIME_ROOT,
+                               FAASM_TOOLCHAIN_FILE, PROJ_ROOT,
+                               SYSROOT_INSTALL_PREFIX, THIRD_PARTY_DIR,
+                               WASM_DIR)
 from faasmcli.util.files import clean_dir
-from faasmcli.util.toolchain import (
-    WASM_HOST,
-    BASE_CONFIG_CMD,
-    WASM_CFLAGS,
-    WASM_CXXFLAGS,
-    WASM_LDFLAGS,
-    WASM_CC,
-    WASM_CXX,
-    WASM_RANLIB,
-    WASM_AR,
-    WASM_LD,
-)
-from faasmcli.util.toolchain import WASM_SYSROOT, WASM_BUILD, BASE_CONFIG_FLAGS
+from faasmcli.util.toolchain import (BASE_CONFIG_CMD, BASE_CONFIG_FLAGS,
+                                     WASM_AR, WASM_BUILD, WASM_CC, WASM_CFLAGS,
+                                     WASM_CXX, WASM_CXXFLAGS, WASM_HOST,
+                                     WASM_LD, WASM_LDFLAGS, WASM_RANLIB,
+                                     WASM_SYSROOT)
+from invoke import task
 
 
 @task
@@ -110,4 +95,3 @@ def lulesh(ctx, lulesh_dir, mpi=False, omp=False, clean=True, debug=False, cp=Tr
         res = call(cmd, shell=True, cwd=build_dir)
         if res != 0:
             raise RuntimeError("Failed to copy {}".format(target))
-

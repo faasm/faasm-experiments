@@ -1,23 +1,17 @@
-from os.path import exists
-from os.path import join
-
-from invoke import task
-
+import re
+from os import mkdir
+from os.path import exists, join
+from shutil import copy
 from subprocess import run
 
-import re
-
+from faasmcli.util.call import invoke_impl
 from faasmcli.util.endpoints import get_invoke_host_port
 from faasmcli.util.env import FAASM_HOME, WASM_DIR
-from faasmcli.util.call import invoke_impl
 from faasmcli.util.maths import is_power_of_two
 from faasmcli.util.mpi import mpi_run
+from invoke import task
+
 from tasks.util.env import EXPERIMENTS_THIRD_PARTY
-
-from shutil import copy
-
-from os import mkdir
-
 
 ITERATIONS = 20
 FAASM_USER = "prk"
