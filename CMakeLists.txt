@@ -39,6 +39,9 @@ include_directories(
 # Faasm code
 add_subdirectory(third-party/faasm)
 
+# Functions
+add_subdirectory(func)
+
 # Targets from this repo
 add_subdirectory(src/bench)
 add_subdirectory(src/capacity)

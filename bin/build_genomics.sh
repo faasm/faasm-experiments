@@ -5,7 +5,7 @@ set -e
 PROJ_ROOT=$(dirname $(dirname $(readlink -f $0)))
 FAASM_DIR=${PROJ_ROOT}/third-party/faasm
 
-source ${FAASM_DIR}/toolchain/env.sh
+source ${FAASM_DIR}/third-party/faasm-toolchain/env.sh
 
 export CFLAGS="${WASM_CFLAGS} ${WASM_LDFLAGS}"
 

@@ -1,12 +1,12 @@
 from decimal import Decimal
 from math import ceil
 from os import listdir
-from os.path import join, exists
+from os.path import exists, join
 
 import matplotlib.pyplot as plt
 
 
-class BillingData():
+class BillingData:
     def __init__(self, host):
         self.host = host
 
@@ -62,15 +62,21 @@ class BillingData():
         self.net_recv_mb = self._rebase(self.net_recv_mb)
         self.net_sent_mb = self._rebase(self.net_sent_mb)
 
-        self.max_disk = max(self._max_stat(self.disk_write_mb), self._max_stat(self.disk_read_mb))
-        self.max_net = max(self._max_stat(self.net_sent_mb), self._max_stat(self.net_recv_mb))
+        self.max_disk = max(
+            self._max_stat(self.disk_write_mb), self._max_stat(self.disk_read_mb)
+        )
+        self.max_net = max(
+            self._max_stat(self.net_sent_mb), self._max_stat(self.net_recv_mb)
+        )
         self.max_mem = self._max_stat(self.memory_used_mb)
 
 
 def parse_billing_data(result_dir):
     billing_results_dir = join(result_dir, "billing", "results")
     if not exists(billing_results_dir):
-        raise RuntimeError("Did not find billing results at {}".format(billing_results_dir))
+        raise RuntimeError(
+            "Did not find billing results at {}".format(billing_results_dir)
+        )
 
     host_data = dict()
     for host_file in listdir(billing_results_dir):
@@ -149,7 +155,6 @@ def plot_billing_data_multi(result_dir):
     fig.set_size_inches(25, 25)
     plt.tight_layout()
     plt.show()
-
 
 
 def plot_billing_data(result_dir):

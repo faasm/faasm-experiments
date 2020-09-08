@@ -1,28 +1,28 @@
 import os
 from copy import copy
 from multiprocessing import Pool
-from os import mkdir, remove, makedirs
-from os.path import exists, basename
-from os.path import join
-from subprocess import check_output, run, PIPE, STDOUT
+from os import makedirs, mkdir, remove
+from os.path import basename, exists, join
+from subprocess import PIPE, STDOUT, check_output, run
 from time import sleep, time
 
 from faasmcli.tasks.call import exec_graph
 from faasmcli.tasks.upload import upload
-import faasmcli.tasks.state as state
-from faasmcli.util.call import invoke_impl, status_call_impl, STATUS_SUCCESS, STATUS_FAILED, STATUS_RUNNING
-from faasmcli.util.endpoints import get_invoke_host_port
-from faasmcli.util.endpoints import get_upload_host_port
+from faasmcli.util.call import (STATUS_FAILED, STATUS_RUNNING, STATUS_SUCCESS,
+                                invoke_impl, status_call_impl)
+from faasmcli.util.compile import wasm_cmake, wasm_copy_upload
+from faasmcli.util.endpoints import get_invoke_host_port, get_upload_host_port
 from faasmcli.util.env import FAASM_DATA_DIR, FAASM_SHARED_STORAGE_ROOT
-from faasmcli.util.state import download_binary_state
-from faasmcli.util.state import upload_shared_file
+from faasmcli.util.state import download_binary_state, upload_shared_file
 from faasmcli.util.upload_util import curl_file
 from invoke import task
 
-from tasks.util.env import EXPERIMENTS_ROOT, EXPERIMENTS_THIRD_PARTY
-from tasks.util.genomics import GENOMICS_DATA_DIR, CHROMOSOME_URLS, CHROMOSOME_NUMBERS, READ_URLS, get_reads_from_dir, \
-    get_index_chunks_present_locally
-from tasks.util.genomics import INDEX_CHUNKS
+from tasks.util.env import (EXPERIMENTS_FUNC_BUILD_DIR, EXPERIMENTS_FUNC_DIR,
+                            EXPERIMENTS_ROOT, EXPERIMENTS_THIRD_PARTY)
+from tasks.util.genomics import (CHROMOSOME_NUMBERS, CHROMOSOME_URLS,
+                                 GENOMICS_DATA_DIR, INDEX_CHUNKS, READ_URLS,
+                                 get_index_chunks_present_locally,
+                                 get_reads_from_dir)
 
 GEM3_DIR = join(EXPERIMENTS_THIRD_PARTY, "gem3-mapper")
 GEM3_INDEXER = join(GEM3_DIR, "bin", "gem-indexer")
@@ -31,6 +31,14 @@ GEM3_MAPPER = join(GEM3_DIR, "bin", "gem-mapper")
 GENOMICS_OUTPUT_DIR = join(GENOMICS_DATA_DIR, "output")
 
 GENOMICS_USER = "gene"
+
+
+@task
+def func(ctx, clean=False):
+    wasm_cmake(EXPERIMENTS_FUNC_DIR, EXPERIMENTS_FUNC_BUILD_DIR, "mapper", clean=clean)
+
+    wasm_file = join(EXPERIMENTS_FUNC_BUILD_DIR, "gene", "mapper.wasm")
+    wasm_copy_upload("gene", "mapper", wasm_file)
 
 
 @task
@@ -46,7 +54,9 @@ def mapping(ctx, download=False):
     call_ids = list()
     for read_idx in read_idxs:
         print("Mapping read chunk {}".format(read_idx))
-        call_id = invoke_impl("gene", "mapper", input="{}".format(read_idx), asynch=True, poll=False)
+        call_id = invoke_impl(
+            "gene", "mapper", input="{}".format(read_idx), asynch=True, poll=False
+        )
         call_ids.append(call_id)
 
     # Poll for completion of each read
@@ -60,7 +70,9 @@ def mapping(ctx, download=False):
 
             # See whether this call is still running
             call_id = call_ids[i]
-            result, output = status_call_impl("gene", "mapper", call_id, host, port, quiet=True)
+            result, output = status_call_impl(
+                "gene", "mapper", call_id, host, port, quiet=True
+            )
             if result == STATUS_RUNNING:
                 continue
 
@@ -78,7 +90,9 @@ def mapping(ctx, download=False):
 
                     output_file = join(GENOMICS_OUTPUT_DIR, state_key)
                     host, port = get_upload_host_port(None, None)
-                    download_binary_state("gene", state_key, output_file, host=host, port=port)
+                    download_binary_state(
+                        "gene", state_key, output_file, host=host, port=port
+                    )
 
             elif result == STATUS_FAILED:
                 print("Read chunk {} failed: {}", read_idx, output)
@@ -88,8 +102,11 @@ def mapping(ctx, download=False):
 
     for call_id in call_ids:
         exec_graph(
-            ctx, call_id=call_id, host=host, headless=True,
-            output_file="/tmp/exec_graph_{}.png".format(call_id)
+            ctx,
+            call_id=call_id,
+            host=host,
+            headless=True,
+            output_file="/tmp/exec_graph_{}.png".format(call_id),
         )
 
     print("-----------------------------------------")
@@ -109,7 +126,7 @@ def _do_native_mapping(reads_file, index_file, output_file):
         GEM3_MAPPER,
         "-I {}".format(index_file),
         "-i {}".format(reads_file),
-        "-o {}".format(output_file)
+        "-o {}".format(output_file),
     ]
 
     cmd = " ".join(cmd)
@@ -143,7 +160,9 @@ def mapping_native(ctx, nthreads=None):
     func_args = list()
     for read_idx, read_file in zip(read_idxs, read_files):
         for index_chunk, index_file in zip(index_chunks, index_files):
-            output_file = join(output_dir, "native_{}_{}.sam".format(read_idx, index_chunk))
+            output_file = join(
+                output_dir, "native_{}_{}.sam".format(read_idx, index_chunk)
+            )
             func_args.append((read_file, index_file, output_file))
 
     p.starmap(_do_native_mapping, func_args)
@@ -172,7 +191,9 @@ def download_genome(ctx):
 
         # Extract zip
         print("Extracting {}".format(download_file))
-        check_output("gunzip -f {}".format(download_file), shell=True, cwd=GENOMICS_DATA_DIR)
+        check_output(
+            "gunzip -f {}".format(download_file), shell=True, cwd=GENOMICS_DATA_DIR
+        )
 
         # Check unzipping
         filename = zip_filename.replace(".gz", "")
@@ -190,13 +211,19 @@ def index_genome(ctx):
     Run indexing
     """
     shell_env = copy(os.environ)
-    shell_env["LD_LIBRARY_PATH"] = "/usr/local/lib:{}".format(shell_env.get("LD_LIBRARY_PATH", ""))
+    shell_env["LD_LIBRARY_PATH"] = "/usr/local/lib:{}".format(
+        shell_env.get("LD_LIBRARY_PATH", "")
+    )
 
     if not exists(GEM3_INDEXER):
         raise RuntimeError("Expected to find executable at {}".format(GEM3_INDEXER))
 
     for idx, name in enumerate(CHROMOSOME_NUMBERS):
-        input_file = join(FAASM_DATA_DIR, "genomics", "Homo_sapiens.GRCh38.dna.chromosome.{}.fa".format(name))
+        input_file = join(
+            FAASM_DATA_DIR,
+            "genomics",
+            "Homo_sapiens.GRCh38.dna.chromosome.{}.fa".format(name),
+        )
         output_file = join(FAASM_DATA_DIR, "genomics", "index_{}".format(idx))
 
         cmd = [
@@ -307,7 +334,9 @@ def upload_funcs(ctx, host="localhost", port=None, peridx=False):
         p.starmap(_do_func_upload, args)
     else:
         # Just upload one function that will be agnostic to index
-        file_path = join(EXPERIMENTS_ROOT, "third-party/gem3-mapper/wasm_bin/gem-mapper")
+        file_path = join(
+            EXPERIMENTS_ROOT, "third-party/gem3-mapper/wasm_bin/gem-mapper"
+        )
         url = "http://{}:{}/f/gene/mapper_index".format(host, port)
         curl_file(url, file_path)
 

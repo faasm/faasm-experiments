@@ -1,8 +1,9 @@
 from collections import defaultdict
 from decimal import Decimal
 from os import listdir
-from os.path import join, basename, normpath
+from os.path import basename, join, normpath
 from subprocess import call
+
 from tasks.util.env import EXPERIMENTS_ANSIBLE_ROOT
 
 
@@ -10,7 +11,7 @@ def _ansible_playbook(playbook_name):
     cmd = [
         "ansible-playbook",
         "-i inventory/billing.ini",
-        "{}.yml".format(playbook_name)
+        "{}.yml".format(playbook_name),
     ]
 
     cmd_str = " ".join(cmd)

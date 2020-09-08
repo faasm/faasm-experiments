@@ -1,3 +1,7 @@
+build/
+
+*.swp
+
 # C
 
 # Prerequisites

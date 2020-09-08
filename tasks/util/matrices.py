@@ -1,5 +1,5 @@
 from os import makedirs
-from os.path import join, exists
+from os.path import exists, join
 
 from faasmcli.util.env import FAASM_DATA_DIR
 

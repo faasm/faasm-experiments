@@ -1,18 +1,19 @@
 from datetime import datetime
 from decimal import Decimal
 from multiprocessing import Process
-from os import makedirs
-from os import remove
+from os import makedirs, remove
 from os.path import exists, join
 from subprocess import call, check_output
 from time import sleep
 
+from faasmcli.util.env import (BENCHMARK_BUILD, PROJ_ROOT, RESULT_DIR,
+                               set_benchmark_env)
+from faasmcli.util.memory import (get_total_memory_for_pid,
+                                  get_total_memory_for_pids)
+from faasmcli.util.process import (count_threads_for_name,
+                                   get_all_pids_for_name,
+                                   get_docker_parent_pids, get_pid_for_name)
 from invoke import task
-
-from faasmcli.util.env import PROJ_ROOT, BENCHMARK_BUILD, RESULT_DIR, set_benchmark_env
-from faasmcli.util.memory import get_total_memory_for_pid, get_total_memory_for_pids
-from faasmcli.util.process import get_docker_parent_pids, get_pid_for_name, get_all_pids_for_name, \
-    count_threads_for_name
 
 from tasks.util.env import EXPERIMENTS_ROOT
 
@@ -92,12 +93,15 @@ def bench_mem(ctx, runtime=None):
     csv_out.write("Runtime,Measure,Value,Workers,ValuePerWorker\n")
 
     for repeat in range(0, 1):
+
         def do_faasm_run(faasm_name, this_workers, this_delays):
-            cmd = " ".join([
-                join(BENCHMARK_BUILD, "bin", "bench_mem"),
-                "warm" if faasm_name == "faasm-warm" else "cold",
-                "sleep_short",
-            ])
+            cmd = " ".join(
+                [
+                    join(BENCHMARK_BUILD, "bin", "bench_mem"),
+                    "warm" if faasm_name == "faasm-warm" else "cold",
+                    "sleep_short",
+                ]
+            )
 
             for worker_chunks, this_delay in zip(this_workers, this_delays):
                 _run_sleep_bench(
@@ -114,7 +118,7 @@ def bench_mem(ctx, runtime=None):
         faasm_worker_chunks = [
             [500, 500, 500, 500],
             [750, 750, 750, 750],
-            [1000, 1000, 1000, 1000]
+            [1000, 1000, 1000, 1000],
         ]
 
         # As we get more threads, need to measure later
@@ -144,15 +148,21 @@ def bench_mem(ctx, runtime=None):
                 join(BENCHMARK_BUILD, "bin", "thread_bench_mem"),
                 5,
                 "thread_bench_mem",
-                csv_out
+                csv_out,
             )
 
     print("\nDONE - output written to {}".format(OUTPUT_FILE))
 
 
-def _run_sleep_bench(bench_name, worker_chunks, cmd, measure_delay, process_name, csv_out):
+def _run_sleep_bench(
+    bench_name, worker_chunks, cmd, measure_delay, process_name, csv_out
+):
     total_n_workers = sum(worker_chunks)
-    print("BENCH: {} - {} workers (chunks: {})".format(bench_name, total_n_workers, worker_chunks))
+    print(
+        "BENCH: {} - {} workers (chunks: {})".format(
+            bench_name, total_n_workers, worker_chunks
+        )
+    )
 
     start_time = datetime.utcnow()
 
@@ -195,13 +205,15 @@ def _run_sleep_bench(bench_name, worker_chunks, cmd, measure_delay, process_name
     for idx, label in enumerate(mem_outputs[0].get_labels()):
         total_value = sum([m.get_data()[idx] for m in mem_outputs])
 
-        csv_out.write("{},{},{},{},{}\n".format(
-            bench_name,
-            label,
-            total_value,
-            total_n_workers,
-            Decimal(total_value) / total_n_workers,
-        ))
+        csv_out.write(
+            "{},{},{},{},{}\n".format(
+                bench_name,
+                label,
+                total_value,
+                total_n_workers,
+                Decimal(total_value) / total_n_workers,
+            )
+        )
 
     csv_out.flush()
 
@@ -245,13 +257,15 @@ def _run_docker_bench(n_workers, csv_out):
     mem_total = get_total_memory_for_pids(pids)
 
     for label, value in zip(mem_total.get_labels(), mem_total.get_data()):
-        csv_out.write("{},{},{},{},{}\n".format(
-            "docker",
-            label,
-            value,
-            n_workers,
-            Decimal(value) / n_workers,
-        ))
+        csv_out.write(
+            "{},{},{},{},{}\n".format(
+                "docker",
+                label,
+                value,
+                n_workers,
+                Decimal(value) / n_workers,
+            )
+        )
 
     csv_out.flush()
 

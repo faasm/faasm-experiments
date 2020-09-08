@@ -1,5 +1,5 @@
 from os import listdir
-from os.path import join, exists
+from os.path import exists, join
 
 from faasmcli.util.env import FAASM_DATA_DIR
 
@@ -28,7 +28,9 @@ CHROMOSOME_NUMBERS.append("Y")
 INDEX_CHUNKS = range(1, 25)
 
 CHROMOSOME_URLS = [
-    "ftp://ftp.ensembl.org/pub/release-97/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.{}.fa.gz".format(i)
+    "ftp://ftp.ensembl.org/pub/release-97/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.{}.fa.gz".format(
+        i
+    )
     for i in CHROMOSOME_NUMBERS
 ]
 

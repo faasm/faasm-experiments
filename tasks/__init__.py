@@ -1,21 +1,18 @@
-from invoke import Collection
-
-from . import bench_capacity
-from . import bench_omp
-from . import bench_mem
-from . import bench_time
-from . import bench_tpt
-from . import data
-from . import experiments
-from . import genomics
-
 # Include all Faasm tasks
 from faasmcli.tasks import ns
+from invoke import Collection
+
+from . import (bench_capacity, bench_mem, bench_omp, bench_time, bench_tpt,
+               data, dev, experiments, genomics, polybench, prk, tensorflow)
 
 # Tasks from this repo
 ns.add_collection(data)
+ns.add_collection(dev)
 ns.add_collection(experiments)
 ns.add_collection(genomics)
+ns.add_collection(polybench)
+ns.add_collection(prk)
+ns.add_collection(tensorflow)
 
 # Group benchmarking tasks
 bench_ns = Collection("bench")
@@ -38,6 +35,7 @@ ns.add_collection(bench_ns)
 # Can only generate matrix data with things installed
 try:
     import pyfaasm
+
     from . import matrix_data
 
     ns.add_collection(matrix_data)

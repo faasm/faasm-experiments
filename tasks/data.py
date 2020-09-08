@@ -1,15 +1,15 @@
 import multiprocessing
 from os import listdir, makedirs
-from os.path import join, exists
+from os.path import exists, join
 from shutil import rmtree
 from subprocess import check_output
-
-from invoke import task
 
 from faasmcli.util.endpoints import get_kubernetes_upload_host
 from faasmcli.util.env import DATA_S3_BUCKET, FAASM_DATA_DIR
 from faasmcli.util.state import upload_binary_state, upload_sparse_matrix
-from faasmcli.util.upload_util import upload_file_to_s3, download_file_from_s3
+from faasmcli.util.upload_util import download_file_from_s3, upload_file_to_s3
+from invoke import task
+
 from tasks.util.matrices import get_matrix_dir
 
 _GENOMICS_TAR_NAME = "genomics.tar.gz"
@@ -47,6 +47,7 @@ _ALL_REUTERS_STATE_KEYS = [
 # S3 UPLOAD/ DOWNLOAD
 # -------------------------------------------------
 
+
 @task
 def reuters_upload_s3(ctx, micro=False):
     """
@@ -55,7 +56,9 @@ def reuters_upload_s3(ctx, micro=False):
     if not micro:
         _do_s3_upload(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
 
-    _do_s3_upload(_REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME)
+    _do_s3_upload(
+        _REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME
+    )
 
 
 @task
@@ -77,7 +80,9 @@ def genomics_upload_s3(ctx):
 def _do_s3_upload(tar_path, tar_dir, tar_name):
     # Compress
     print("Creating archive of data {}".format(tar_path))
-    check_output("tar -cf {} {}".format(tar_path, tar_dir), shell=True, cwd=FAASM_DATA_DIR)
+    check_output(
+        "tar -cf {} {}".format(tar_path, tar_dir), shell=True, cwd=FAASM_DATA_DIR
+    )
 
     # Upload
     print("Uploading archive to S3")
@@ -96,7 +101,9 @@ def reuters_download_s3(ctx, micro=False):
     if not micro:
         _do_s3_download(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
 
-    _do_s3_download(_REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME)
+    _do_s3_download(
+        _REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME
+    )
 
 
 @task
@@ -138,6 +145,7 @@ def _do_s3_download(tar_path, tar_dir, tar_name):
 # REUTERS UPLOAD
 # -------------------------------------------------
 
+
 @task
 def reuters_state(ctx, host=None, knative=True, micro=False):
     """
@@ -164,6 +172,7 @@ def reuters_state(ctx, host=None, knative=True, micro=False):
 # -------------------------------------------------
 # MATRIX UPLOAD
 # -------------------------------------------------
+
 
 def _do_upload(data_dir, file_name, user, host, key=None):
     print("Uploading state {}".format(file_name))

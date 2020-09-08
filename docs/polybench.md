@@ -14,7 +14,7 @@ uploaded as follows.
 
 ```
 # Compile to wasm and run codegen for WAVM and WAMR
-inv compile.user polybench --clean
+inv polybench.func --clean
 
 inv codegen.user polybench
 inv codegen.user polybench --wamr
@@ -70,3 +70,4 @@ inv disas.symbols <user> <func>
 # For example
 inv disas.symbols polybench 3mm
 ```
+

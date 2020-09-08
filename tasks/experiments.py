@@ -1,22 +1,23 @@
 import os
 import subprocess
 from abc import abstractmethod
-from os import mkdir, listdir, remove
+from os import listdir, mkdir, remove
 from os.path import exists, join
-from shutil import rmtree, copy
+from shutil import copy, rmtree
 from subprocess import call
-from time import time, sleep
+from time import sleep, time
 
+import faasmcli.tasks.knative as kn
+from faasmcli.util.call import invoke_impl
+from faasmcli.util.endpoints import get_invoke_host_port, is_kubernetes
+from faasmcli.util.env import FAASM_HOME
 from invoke import task
 from psutil import cpu_count
 
-import faasmcli.tasks.knative as kn
 import tasks.data
-from faasmcli.util.call import invoke_impl
-from faasmcli.util.endpoints import is_kubernetes, get_invoke_host_port
-from faasmcli.util.env import FAASM_HOME, PROJ_ROOT
-from tasks.util.billing import start_billing, pull_billing, parse_billing
+from tasks.util.billing import parse_billing, pull_billing, start_billing
 from tasks.util.billing_data import plot_billing_data_multi
+from tasks.util.env import EXPERIMENTS_ROOT
 
 
 def _del_redis_state_key(key):
@@ -72,7 +73,9 @@ class ExperimentRunner(object):
 
     @classmethod
     def pull_results(cls, host_user, host):
-        cmd = "scp -r {}@{}:/home/{}/faasm/{}_{} {}".format(host_user, host, host_user, cls.user, cls.func, FAASM_HOME)
+        cmd = "scp -r {}@{}:/home/{}/faasm/{}_{} {}".format(
+            host_user, host, host_user, cls.user, cls.func, FAASM_HOME
+        )
         print(cmd)
         call(cmd, shell=True)
 
@@ -133,11 +136,14 @@ class InvokeAndWaitRunner(ExperimentRunner):
 
     def execute_benchmark(self, native):
         success, output = invoke_impl(
-            self.user, self.func,
-            poll=True, poll_interval_ms=self.poll_interval,
+            self.user,
+            self.func,
+            poll=True,
+            poll_interval_ms=self.poll_interval,
             knative=True,
             input=self.input_data,
-            native=native, py=self.is_python,
+            native=native,
+            py=self.is_python,
         )
 
         return success, output
@@ -212,6 +218,7 @@ class WrkRunner(ExperimentRunner):
 # SGD
 # -------------------------------------
 
+
 class SGDExperimentRunner(InvokeAndWaitRunner):
     user = "sgd"
     func = "reuters_svm"
@@ -224,7 +231,9 @@ class SGDExperimentRunner(InvokeAndWaitRunner):
         self.interval = interval
 
     def get_result_folder_name(self, system):
-        folder_name = "SYSTEM_{}_WORKERS_{}_INTERVAL_{}_logs".format(system, self.n_workers, self.interval)
+        folder_name = "SYSTEM_{}_WORKERS_{}_INTERVAL_{}_logs".format(
+            system, self.n_workers, self.interval
+        )
         return folder_name
 
 
@@ -254,13 +263,9 @@ def sgd_multi(ctx, native=False, nobill=False, micro=False):
 
     # Runs are just lists of worker counts
     if native:
-        runs = [
-            5, 10, 15, 20, 25, 30, 35, 40, 45, 50
-        ]
+        runs = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
     else:
-        runs = [
-            5, 10, 15, 20, 25, 30, 35, 40, 45, 50
-        ]
+        runs = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 
     for n_workers in runs:
         # Run the expieriment multiple times
@@ -303,6 +308,7 @@ def sgd_parse_results(ctx):
 # Matrix multiplication
 # -------------------------------------
 
+
 class MatrixExperimentRunner(InvokeAndWaitRunner):
     user = "python"
     func = "mat_mul"
@@ -319,8 +325,9 @@ class MatrixExperimentRunner(InvokeAndWaitRunner):
         self.n_splits = n_splits
 
     def get_result_folder_name(self, system):
-        folder_name = "SYSTEM_{}_MATRIX_{}_SPLITS_{}_WORKERS_{}_logs".format(system, self.mat_size, self.n_splits,
-                                                                             self.n_workers)
+        folder_name = "SYSTEM_{}_MATRIX_{}_SPLITS_{}_WORKERS_{}_logs".format(
+            system, self.mat_size, self.n_splits, self.n_workers
+        )
         return folder_name
 
 
@@ -346,7 +353,9 @@ def matrix_multi(ctx, n_workers, native=False, nobill=False):
 
             sleep(sleep_time)
 
-            print("\nRUNNING EXPERIMENT - {}x{} {}\n".format(mat_size, mat_size, n_splits))
+            print(
+                "\nRUNNING EXPERIMENT - {}x{} {}\n".format(mat_size, mat_size, n_splits)
+            )
             matrix(ctx, n_workers, mat_size, n_splits, native=native, nobill=nobill)
 
 
@@ -381,9 +390,19 @@ class TensorflowExperimentRunner(WrkRunner):
     is_python = False
     result_file_name = "NODE_0_INFERENCE.log"
 
-    def __init__(self, cold_start_interval, threads=4, total_connections=20, delay_ms=5, duration_secs=10):
+    def __init__(
+        self,
+        cold_start_interval,
+        threads=4,
+        total_connections=20,
+        delay_ms=5,
+        duration_secs=10,
+    ):
         super().__init__(
-            threads=threads, total_connections=total_connections, delay_ms=delay_ms, duration_secs=duration_secs
+            threads=threads,
+            total_connections=total_connections,
+            delay_ms=delay_ms,
+            duration_secs=duration_secs,
         )
 
         self.cold_start_interval = cold_start_interval
@@ -394,11 +413,15 @@ class TensorflowExperimentRunner(WrkRunner):
         return super().execute_benchmark(native)
 
     def get_wrk_script(self):
-        return join(PROJ_ROOT, "deploy", "conf", "tflite_bench.lua")
+        return join(EXPERIMENTS_ROOT, "deploy", "conf", "tflite_bench.lua")
 
     def get_result_folder_name(self, system):
         folder_name = "SYSTEM_{}_COLD_{}_THREADS_{}_CONNS_{}_DELAY_{}_logs".format(
-            system, self.cold_start_interval, self.threads, self.total_connections, self.delay_ms
+            system,
+            self.cold_start_interval,
+            self.threads,
+            self.total_connections,
+            self.delay_ms,
         )
 
         return folder_name

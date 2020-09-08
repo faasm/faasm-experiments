@@ -1,12 +1,12 @@
 from decimal import Decimal
 from os import makedirs
-from os.path import join, exists
+from os.path import exists, join
 from subprocess import call
 from tempfile import NamedTemporaryFile
 
+from faasmcli.util.env import (BENCHMARK_BUILD, PROJ_ROOT, RESULT_DIR,
+                               set_benchmark_env)
 from invoke import task
-
-from faasmcli.util.env import PROJ_ROOT, BENCHMARK_BUILD, RESULT_DIR, set_benchmark_env
 
 from tasks.util.env import EXPERIMENTS_ROOT
 
@@ -25,20 +25,14 @@ def bench_time(ctx, runtime=None):
     benches = {
         "faasm-cold": [
             "{} cold".format(join(BENCHMARK_BUILD, "bin", "bench_time")),
-            100
+            100,
         ],
         "faasm-warm": [
             "{} warm".format(join(BENCHMARK_BUILD, "bin", "bench_time")),
-            2000
+            2000,
         ],
-        "docker": [
-            "./bin/docker_noop_time.sh noop",
-            10
-        ],
-        "dockerpy": [
-            "./bin/docker_noop_time.sh pynoop",
-            10
-        ],
+        "docker": ["./bin/docker_noop_time.sh noop", 10],
+        "dockerpy": ["./bin/docker_noop_time.sh pynoop", 10],
         # ("thread", join(BENCHMARK_BUILD, "bin", "thread_bench_time"), 10000),
     }
 
@@ -48,8 +42,7 @@ def bench_time(ctx, runtime=None):
         bench_names = benches.keys()
 
     csv_out = open(OUTPUT_FILE, "w")
-    csv_out.write(
-        "Runtime,Measure,Value,Iterations,ValuePerIteration\n")
+    csv_out.write("Runtime,Measure,Value,Iterations,ValuePerIteration\n")
 
     for bench_name in bench_names:
         bench_details = benches[bench_name]
@@ -75,8 +68,11 @@ def _do_cpu_cycles(runtime_name, cmd, iterations, csv_out):
     # Build the command with output to temp file
     out_file = NamedTemporaryFile()
     cmd = [
-        "perf", "stat", "-x, -e cycles,instructions -a",
-        "-o", out_file.name,
+        "perf",
+        "stat",
+        "-x, -e cycles,instructions -a",
+        "-o",
+        out_file.name,
         cmd,
         str(iterations),
     ]
@@ -98,13 +94,15 @@ def _do_cpu_cycles(runtime_name, cmd, iterations, csv_out):
             if metric == "cycles":
                 # Amortize over iterations
                 value = Decimal(value) / iterations
-                csv_out.write("{},{},{},{},{}\n".format(
-                    runtime_name,
-                    "cpu_cycles",
-                    value,
-                    iterations,
-                    Decimal(value) / iterations,
-                ))
+                csv_out.write(
+                    "{},{},{},{},{}\n".format(
+                        runtime_name,
+                        "cpu_cycles",
+                        value,
+                        iterations,
+                        Decimal(value) / iterations,
+                    )
+                )
 
     csv_out.flush()
 
@@ -115,7 +113,8 @@ def _do_time(runtime_name, cmd, iterations, csv_out):
     cmd = [
         TIME_BINARY,
         "-v",
-        "-o", out_file.name,
+        "-o",
+        out_file.name,
         cmd,
         str(iterations),
     ]
@@ -154,12 +153,14 @@ def _do_time(runtime_name, cmd, iterations, csv_out):
     # Map time labels to output labels
     label = "Elapsed (wall clock) time (h:mm:ss or m:ss)"
     value = time_stats[label]
-    csv_out.write("{},{},{},{},{}\n".format(
-        runtime_name,
-        "elapsed_seconds",
-        value,
-        iterations,
-        Decimal(value) / iterations,
-    ))
+    csv_out.write(
+        "{},{},{},{},{}\n".format(
+            runtime_name,
+            "elapsed_seconds",
+            value,
+            iterations,
+            Decimal(value) / iterations,
+        )
+    )
 
     csv_out.flush()
