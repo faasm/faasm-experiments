@@ -9,6 +9,8 @@ from . import data
 from . import dev
 from . import experiments
 from . import genomics
+from . import prk
+from . import tensorflow
 
 # Include all Faasm tasks
 from faasmcli.tasks import ns
@@ -18,6 +20,8 @@ ns.add_collection(data)
 ns.add_collection(dev)
 ns.add_collection(experiments)
 ns.add_collection(genomics)
+ns.add_collection(prk)
+ns.add_collection(tensorflow)
 
 # Group benchmarking tasks
 bench_ns = Collection("bench")
