@@ -12,7 +12,7 @@ from tasks.util.env import EXPERIMENTS_THIRD_PARTY
 MXNET_DIR = join(EXPERIMENTS_THIRD_PARTY, "mxnet")
 
 # See the MXNet CPP guide for more info:
-# https://mxnet.apache.org/versions/1.6/api/cpp
+# https://mxnet.apache.org/api/cpp.html
 
 
 @task
@@ -25,6 +25,7 @@ def lib(ctx, clean=False):
 
     cmake_cmd = [
         "cmake",
+        "-GNinja",
         "-DFAASM_BUILD_TYPE=wasm",
         "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
@@ -41,6 +42,7 @@ def lib(ctx, clean=False):
         "-DBUILD_CPP_EXAMPLES=OFF",
         "-DUSE_SIGNAL_HANDLER=OFF",
         "-DUSE_CCACHE=OFF",
+        "-DUSE_CPP_PACKAGE=ON",
         MXNET_DIR,
     ]
 
@@ -50,4 +52,8 @@ def lib(ctx, clean=False):
     res = run(cmake_str, shell=True, cwd=work_dir, env=env_vars)
     if res.returncode != 0:
         raise RuntimeError("CMake command failed")
+
+    res = run("ninja mxnet", shell=True, cwd=work_dir, env=env_vars)
+    if res.returncode != 0:
+        raise RuntimeError("CMake install failed")
 
