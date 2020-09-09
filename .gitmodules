@@ -15,3 +15,6 @@
 	path = third-party/mxnet
     url = https://github.com/Shillaker/incubator-mxnet
     branch = faasm
+[submodule "third-party/faasm-clapack"]
+	path = third-party/faasm-clapack
+	url = https://github.com/Shillaker/faasm-clapack

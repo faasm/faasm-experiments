@@ -8,22 +8,26 @@ from . import (
     bench_omp,
     bench_time,
     bench_tpt,
+    clapack,
     data,
     dev,
     experiments,
     genomics,
     horovod,
+    mxnet,
     polybench,
     prk,
     tensorflow,
 )
 
 # Tasks from this repo
+ns.add_collection(clapack)
 ns.add_collection(data)
 ns.add_collection(dev)
 ns.add_collection(experiments)
 ns.add_collection(genomics)
 ns.add_collection(horovod)
+ns.add_collection(mxnet)
 ns.add_collection(polybench)
 ns.add_collection(prk)
 ns.add_collection(tensorflow)
