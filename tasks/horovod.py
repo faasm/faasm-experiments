@@ -42,5 +42,9 @@ def lib(ctx, clean=False):
 
     res = run(cmake_str, shell=True, cwd=work_dir, env=env_vars)
     if res.returncode != 0:
-        raise RuntimeError("CMake command failed")
+        raise RuntimeError("Horovod CMake config failed")
+
+    res = run("cmake --build .", shell=True, cwd=work_dir)
+    if res.returncode != 0:
+        raise RuntimeError("Horovod build failed")
 

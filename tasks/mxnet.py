@@ -30,6 +30,7 @@ def lib(ctx, clean=False):
         "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_INSTALL_PREFIX={}".format(SYSROOT_INSTALL_PREFIX),
+        "-DCMAKE_INSTALL_LIBDIR=lib/wasm32-wasi",
         "-DUSE_CUDA=OFF",
         "-DUSE_LAPACK=OFF",
         "-DUSE_MKL_IF_AVAILABLE=OFF",
