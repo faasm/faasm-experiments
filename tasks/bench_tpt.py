@@ -4,8 +4,7 @@ from os.path import exists, join
 from subprocess import call
 
 import numpy as np
-from faasmcli.util.env import (BENCHMARK_BUILD, PROJ_ROOT, RESULT_DIR,
-                               set_benchmark_env)
+from faasmcli.util.env import BENCHMARK_BUILD, PROJ_ROOT, RESULT_DIR, set_benchmark_env
 from invoke import task
 
 from tasks.util.env import EXPERIMENTS_ROOT

@@ -8,8 +8,13 @@ from time import sleep, time
 
 from faasmcli.tasks.call import exec_graph
 from faasmcli.tasks.upload import upload
-from faasmcli.util.call import (STATUS_FAILED, STATUS_RUNNING, STATUS_SUCCESS,
-                                invoke_impl, status_call_impl)
+from faasmcli.util.call import (
+    STATUS_FAILED,
+    STATUS_RUNNING,
+    STATUS_SUCCESS,
+    invoke_impl,
+    status_call_impl,
+)
 from faasmcli.util.compile import wasm_cmake, wasm_copy_upload
 from faasmcli.util.endpoints import get_invoke_host_port, get_upload_host_port
 from faasmcli.util.env import FAASM_DATA_DIR, FAASM_SHARED_STORAGE_ROOT
@@ -17,12 +22,21 @@ from faasmcli.util.state import download_binary_state, upload_shared_file
 from faasmcli.util.upload_util import curl_file
 from invoke import task
 
-from tasks.util.env import (EXPERIMENTS_FUNC_BUILD_DIR, EXPERIMENTS_FUNC_DIR,
-                            EXPERIMENTS_ROOT, EXPERIMENTS_THIRD_PARTY)
-from tasks.util.genomics import (CHROMOSOME_NUMBERS, CHROMOSOME_URLS,
-                                 GENOMICS_DATA_DIR, INDEX_CHUNKS, READ_URLS,
-                                 get_index_chunks_present_locally,
-                                 get_reads_from_dir)
+from tasks.util.env import (
+    EXPERIMENTS_FUNC_BUILD_DIR,
+    EXPERIMENTS_FUNC_DIR,
+    EXPERIMENTS_ROOT,
+    EXPERIMENTS_THIRD_PARTY,
+)
+from tasks.util.genomics import (
+    CHROMOSOME_NUMBERS,
+    CHROMOSOME_URLS,
+    GENOMICS_DATA_DIR,
+    INDEX_CHUNKS,
+    READ_URLS,
+    get_index_chunks_present_locally,
+    get_reads_from_dir,
+)
 
 GEM3_DIR = join(EXPERIMENTS_THIRD_PARTY, "gem3-mapper")
 GEM3_INDEXER = join(GEM3_DIR, "bin", "gem-indexer")

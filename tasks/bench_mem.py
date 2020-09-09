@@ -6,13 +6,14 @@ from os.path import exists, join
 from subprocess import call, check_output
 from time import sleep
 
-from faasmcli.util.env import (BENCHMARK_BUILD, PROJ_ROOT, RESULT_DIR,
-                               set_benchmark_env)
-from faasmcli.util.memory import (get_total_memory_for_pid,
-                                  get_total_memory_for_pids)
-from faasmcli.util.process import (count_threads_for_name,
-                                   get_all_pids_for_name,
-                                   get_docker_parent_pids, get_pid_for_name)
+from faasmcli.util.env import BENCHMARK_BUILD, PROJ_ROOT, RESULT_DIR, set_benchmark_env
+from faasmcli.util.memory import get_total_memory_for_pid, get_total_memory_for_pids
+from faasmcli.util.process import (
+    count_threads_for_name,
+    get_all_pids_for_name,
+    get_docker_parent_pids,
+    get_pid_for_name,
+)
 from invoke import task
 
 from tasks.util.env import EXPERIMENTS_ROOT

@@ -1,16 +1,31 @@
 from os import cpu_count, makedirs, mkdir
 from os.path import exists, join
 
-from faasmcli.util.env import (FAASM_INSTALL_DIR, FAASM_RUNTIME_ROOT,
-                               FAASM_TOOLCHAIN_FILE, PROJ_ROOT,
-                               SYSROOT_INSTALL_PREFIX, THIRD_PARTY_DIR,
-                               WASM_DIR)
+from faasmcli.util.env import (
+    FAASM_INSTALL_DIR,
+    FAASM_RUNTIME_ROOT,
+    FAASM_TOOLCHAIN_FILE,
+    PROJ_ROOT,
+    SYSROOT_INSTALL_PREFIX,
+    THIRD_PARTY_DIR,
+    WASM_DIR,
+)
 from faasmcli.util.files import clean_dir
-from faasmcli.util.toolchain import (BASE_CONFIG_CMD, BASE_CONFIG_FLAGS,
-                                     WASM_AR, WASM_BUILD, WASM_CC, WASM_CFLAGS,
-                                     WASM_CXX, WASM_CXXFLAGS, WASM_HOST,
-                                     WASM_LD, WASM_LDFLAGS, WASM_RANLIB,
-                                     WASM_SYSROOT)
+from faasmcli.util.toolchain import (
+    BASE_CONFIG_CMD,
+    BASE_CONFIG_FLAGS,
+    WASM_AR,
+    WASM_BUILD,
+    WASM_CC,
+    WASM_CFLAGS,
+    WASM_CXX,
+    WASM_CXXFLAGS,
+    WASM_HOST,
+    WASM_LD,
+    WASM_LDFLAGS,
+    WASM_RANLIB,
+    WASM_SYSROOT,
+)
 from invoke import task
 
 
