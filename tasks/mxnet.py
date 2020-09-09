@@ -51,9 +51,10 @@ def lib(ctx, clean=False):
 
     res = run(cmake_str, shell=True, cwd=work_dir, env=env_vars)
     if res.returncode != 0:
-        raise RuntimeError("CMake command failed")
+        raise RuntimeError("CMake config failed")
 
     res = run("ninja mxnet", shell=True, cwd=work_dir, env=env_vars)
     if res.returncode != 0:
-        raise RuntimeError("CMake install failed")
+        raise RuntimeError("CMake build failed")
+
 
