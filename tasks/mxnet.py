@@ -51,10 +51,15 @@ def lib(ctx, clean=False):
 
     res = run(cmake_str, shell=True, cwd=work_dir, env=env_vars)
     if res.returncode != 0:
-        raise RuntimeError("CMake config failed")
+        raise RuntimeError("MXNet CMake config failed ({})".format(
+            res.returncode
+            ))
 
     res = run("ninja mxnet", shell=True, cwd=work_dir, env=env_vars)
     if res.returncode != 0:
-        raise RuntimeError("CMake build failed")
+        raise RuntimeError("MXNet build failed ({})".format(res.returncode))
 
+    res = run("ninja install", shell=True, cwd=work_dir)
+    if res.returncode != 0:
+        raise RuntimeError("MXNet install failed ({})".format(res.returncode))
 
