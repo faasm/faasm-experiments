@@ -21,4 +21,5 @@ forks (usually on a `faasm` branch):
 - [Shillaker/Horovod](https://github.com/Shillaker/horovod/tree/faasm)
 - [Shillaker/incubator-mxnet](https://github.com/Shillaker/incubator-mxnet/tree/faasm)
 - [Shillaker/dmlc-core](https://github.com/Shillaker/dmlc-core/tree/faasm)
+- [Shillaker/faasm-clapack](https://github.com/Shillaker/faasm-clapack)
 
