@@ -25,14 +25,8 @@ git submodule update --init third-party/wamr
 Finally, to use the Faasm CLI, you need to run:
 
 ```
-# Go to your Faasm root
-cd /usr/local/code/faasm 
-
-# Run the CLI
-source workon.sh
-
-# Go back to this dir
-cd <this directory>
+# Set up the Faasm CLI
+source third-party/faasm/workon.sh
 
 # Check 
 inv toolchain.version
