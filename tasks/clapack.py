@@ -1,5 +1,6 @@
 from os.path import join
 from subprocess import run
+from multiprocessing import cpu_count
 
 from invoke import task
 
@@ -17,7 +18,9 @@ def lib(ctx, clean=False):
     if clean:
         run("make clean", cwd=work_dir, shell=True)
 
-    res = run("make", shell=True, cwd=work_dir)
+    n_cpu = int(cpu_count()) - 1
+
+    res = run("make -j {}".format(n_cpu), shell=True, cwd=work_dir)
     if res.returncode != 0:
         raise RuntimeError("Make command failed")
 

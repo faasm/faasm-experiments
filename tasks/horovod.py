@@ -34,6 +34,7 @@ def lib(ctx, clean=False):
         "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_INSTALL_PREFIX={}".format(SYSROOT_INSTALL_PREFIX),
+        "-DHAVE_CUDA=OFF",
         HOROVOD_DIR,
     ]
 

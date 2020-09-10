@@ -44,6 +44,7 @@ def lib(ctx, clean=False):
         "-DUSE_SIGNAL_HANDLER=OFF",
         "-DUSE_CCACHE=OFF",
         "-DUSE_CPP_PACKAGE=ON",
+        "-DMXNET_BUILD_SHARED_LIBS=OFF",
         MXNET_DIR,
     ]
 
