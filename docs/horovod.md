@@ -3,7 +3,16 @@
 [Horovod](https://github.com/horovod/horovod) is a distributed machine learning
 training framework that uses MPI under the hood.
 
-We support using Horovod with [MXNet](https://mxnet.apache.org/). To build:
+We support using Horovod with [MXNet](https://mxnet.apache.org/). 
+
+Before building, make sure all the horovod 3rd party deps are up to date:
+
+```
+cd third-party/horovod
+git submodule update --init
+```
+
+To build:
 
 ```
 # Build MXNet
