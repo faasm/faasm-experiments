@@ -30,6 +30,7 @@ def lib(ctx, clean=False):
 
     cmake_cmd = [
         "cmake",
+        "-GNinja",
         "-DFAASM_BUILD_TYPE=wasm",
         "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
@@ -45,7 +46,11 @@ def lib(ctx, clean=False):
     if res.returncode != 0:
         raise RuntimeError("Horovod CMake config failed")
 
-    res = run("cmake --build .", shell=True, cwd=work_dir)
+    res = run("ninja", shell=True, cwd=work_dir)
     if res.returncode != 0:
         raise RuntimeError("Horovod build failed")
+
+    res = run("ninja install", shell=True, cwd=work_dir)
+    if res.returncode != 0:
+        raise RuntimeError("Horovod install failed")
 
