@@ -7,8 +7,12 @@ from pyfaasm.config import MatrixConf
 from pyfaasm.matrix import random_matrix
 from pyfaasm.matrix_data import subdivide_matrix_into_files
 
-from tasks.util.matrices import (MATRIX_CONF_STATE_KEY, SUBMATRICES_KEY_A,
-                                 SUBMATRICES_KEY_B, get_matrix_dir)
+from tasks.util.matrices import (
+    MATRIX_CONF_STATE_KEY,
+    SUBMATRICES_KEY_A,
+    SUBMATRICES_KEY_B,
+    get_matrix_dir,
+)
 
 
 @task
