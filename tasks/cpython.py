@@ -26,7 +26,7 @@ LOCAL_PYTHON_BIN = "/usr/local/faasm/python3.8/bin"
 
 
 @task
-def lib(ctx, clean=False):
+def lib(ctx, clean=False, noconf=False):
     work_dir = join(CPYTHON_DIR)
     build_dir = join(work_dir, "build", "wasm")
     install_dir = join(work_dir, "install", "wasm")
@@ -77,15 +77,24 @@ def lib(ctx, clean=False):
         'LDFLAGS="{}"'.format(ldflags),
     ])
 
-    configure_str = " ".join(configure_cmd)
-    print(configure_str)
-
-    print("RUNNING CONFIGURE")
-    res = run(configure_str, shell=True, cwd=work_dir, env=env_vars)
-    if res.returncode != 0:
-        raise RuntimeError("CPython configure failed ({})".format(
-            res.returncode
+    if noconf:
+        print("NOT RECONFIGURING")
+    else:
+        print("CONFIGURING CPYTHON")
+        configure_str = " ".join(configure_cmd)
+        print(configure_str)
+        res = run(configure_str, shell=True, cwd=work_dir, env=env_vars)
+        if res.returncode != 0:
+            raise RuntimeError("CPython configure failed ({})".format(
+                res.returncode
             ))
+        
+    print("MODIFYING CPYTHON CONFIG")
+    
+    # Copy in extra undefs
+    run("cat pyconfig-extra.h >> pyconfig.h", shell=True, cwd=work_dir)
+
+    print("BUILDING CPYTHON")
 
     cpus = int(cpu_count()) - 1
     make_cmd = [
