@@ -63,7 +63,11 @@ def lib(ctx, clean=False, noconf=False):
         _run_cmd("rm install", ["rm", "-rf", INSTALL_DIR])
 
     # Configure
-    configure_cmd = ["CONFIG_SITE=./config.site", "READELF=true", "./configure"]
+    configure_cmd = [
+        "CONFIG_SITE=./config.site",
+        "READELF=true",
+        "./configure",
+    ]
 
     configure_cmd.extend(BASE_CONFIG_CMD)
     configure_cmd.extend(

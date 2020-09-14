@@ -103,7 +103,9 @@ def mapping(ctx, download=False):
                 # Download the results of this read
                 if download:
                     print(
-                        "Downloading output for read chunk {}.".format(read_idx)
+                        "Downloading output for read chunk {}.".format(
+                            read_idx
+                        )
                     )
                     state_key = "output_read_{}".format(read_idx)
 

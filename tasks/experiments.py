@@ -367,7 +367,12 @@ def matrix_multi(ctx, n_workers, native=False, nobill=False):
                 )
             )
             matrix(
-                ctx, n_workers, mat_size, n_splits, native=native, nobill=nobill
+                ctx,
+                n_workers,
+                mat_size,
+                n_splits,
+                native=native,
+                nobill=nobill,
             )
 
 

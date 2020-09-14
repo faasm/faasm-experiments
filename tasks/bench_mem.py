@@ -86,7 +86,9 @@ def faasm_count(ctx):
     """
     Memory benchmark - count Faasm instances
     """
-    threads = count_threads_for_name("bench_mem", exact=True, exclude_main=True)
+    threads = count_threads_for_name(
+        "bench_mem", exact=True, exclude_main=True
+    )
     print("Faasm threads = {}".format(threads))
 
 
