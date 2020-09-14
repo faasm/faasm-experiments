@@ -18,6 +18,7 @@ from faasmcli.util.toolchain import (
 )
 
 CPYTHON_DIR = join(EXPERIMENTS_THIRD_PARTY, "cpython")
+LOCAL_PYTHON_BIN = "/usr/local/faasm/python3.8/bin"
 
 # See the CPython docs for more info:
 # - General: https://devguide.python.org/setup/#compile-and-build
@@ -36,8 +37,18 @@ def lib(ctx, clean=False):
         run("make clean", shell=True, cwd=work_dir)
 
     env_vars = copy(os.environ)       
+    path_env_var = env_vars.get("PATH", "")
+    path_env_var = "{}:{}".format(LOCAL_PYTHON_BIN, path_env_var)
+    env_vars.update({
+        "PATH": path_env_var,
+        })
 
-    configure_cmd = ["./configure"]
+    configure_cmd = [
+            "CONFIG_SITE=./config.site",
+            "READELF=true",
+            "./configure"
+            ]
+
     configure_cmd.extend(BASE_CONFIG_CMD)
     configure_cmd.extend([
         "--with-pydebug",
@@ -46,7 +57,7 @@ def lib(ctx, clean=False):
         "--disable-shared",
         "--build={}".format(WASM_BUILD),
         "--host={}".format(WASM_HOST),
-        "--prefix={}".format(install_dir)
+        "--prefix={}".format(install_dir),
         ])
 
     cflags = [
