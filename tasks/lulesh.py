@@ -30,7 +30,9 @@ from invoke import task
 
 
 @task
-def lulesh(ctx, lulesh_dir, mpi=False, omp=False, clean=True, debug=False, cp=True):
+def lulesh(
+    ctx, lulesh_dir, mpi=False, omp=False, clean=True, debug=False, cp=True
+):
     """
     Compile and install the LULESH code
     """

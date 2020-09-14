@@ -150,7 +150,9 @@ class InvokeAndWaitRunner(ExperimentRunner):
 
 
 class WrkRunner(ExperimentRunner):
-    def __init__(self, threads=4, total_connections=20, delay_ms=0, duration_secs=10):
+    def __init__(
+        self, threads=4, total_connections=20, delay_ms=0, duration_secs=10
+    ):
         super().__init__(None)
 
         self.wrk_bin = join(FAASM_HOME, "tools", "wrk")
@@ -225,7 +227,9 @@ class SGDExperimentRunner(InvokeAndWaitRunner):
     result_file_name = "NODE_0_SGD_LOSS.log"
 
     def __init__(self, n_workers, interval, micro):
-        super().__init__("{} {} {}".format(n_workers, interval, "1" if micro else "0"))
+        super().__init__(
+            "{} {} {}".format(n_workers, interval, "1" if micro else "0")
+        )
 
         self.n_workers = n_workers
         self.interval = interval
@@ -348,15 +352,23 @@ def matrix_multi(ctx, n_workers, native=False, nobill=False):
                 kn.delete_worker(ctx, hard=False)
                 sleep_time = 130
 
-            print("\nUPLOADING STATE - {}x{} {}\n".format(mat_size, mat_size, n_splits))
+            print(
+                "\nUPLOADING STATE - {}x{} {}\n".format(
+                    mat_size, mat_size, n_splits
+                )
+            )
             tasks.data.matrix_state(ctx, mat_size, n_splits)
 
             sleep(sleep_time)
 
             print(
-                "\nRUNNING EXPERIMENT - {}x{} {}\n".format(mat_size, mat_size, n_splits)
+                "\nRUNNING EXPERIMENT - {}x{} {}\n".format(
+                    mat_size, mat_size, n_splits
+                )
             )
-            matrix(ctx, n_workers, mat_size, n_splits, native=native, nobill=nobill)
+            matrix(
+                ctx, n_workers, mat_size, n_splits, native=native, nobill=nobill
+            )
 
 
 @task
@@ -416,12 +428,14 @@ class TensorflowExperimentRunner(WrkRunner):
         return join(EXPERIMENTS_ROOT, "deploy", "conf", "tflite_bench.lua")
 
     def get_result_folder_name(self, system):
-        folder_name = "SYSTEM_{}_COLD_{}_THREADS_{}_CONNS_{}_DELAY_{}_logs".format(
-            system,
-            self.cold_start_interval,
-            self.threads,
-            self.total_connections,
-            self.delay_ms,
+        folder_name = (
+            "SYSTEM_{}_COLD_{}_THREADS_{}_CONNS_{}_DELAY_{}_logs".format(
+                system,
+                self.cold_start_interval,
+                self.threads,
+                self.total_connections,
+                self.delay_ms,
+            )
         )
 
         return folder_name

@@ -39,18 +39,24 @@ PRK_CMDLINE = {
     "dgemm": "{} 500 32 1".format(
         ITERATIONS
     ),  # iterations, matrix order, outer block size (?)
-    "nstream": "{} 2000000 0".format(ITERATIONS),  # iterations, vector length, offset
+    "nstream": "{} 2000000 0".format(
+        ITERATIONS
+    ),  # iterations, vector length, offset
     "random": "16 16",  # update ratio, table size
     "reduce": "{} 2000000".format(ITERATIONS),  # iterations, vector length
     "sparse": "{} {} 4".format(
         ITERATIONS, SPARSE_GRID_SIZE_2LOG
     ),  # iterations, log2 grid size, stencil radius
     "stencil": "{} 1000".format(ITERATIONS),  # iterations, array dimension
-    "global": "{} 10000".format(ITERATIONS),  # iterations, scramble string length
+    "global": "{} 10000".format(
+        ITERATIONS
+    ),  # iterations, scramble string length
     "p2p": "{} 1000 100".format(
         ITERATIONS
     ),  # iterations, 1st array dimension, 2nd array dimension
-    "transpose": "{} 2000 64".format(ITERATIONS),  # iterations, matrix order, tile size
+    "transpose": "{} 2000 64".format(
+        ITERATIONS
+    ),  # iterations, matrix order, tile size
 }
 
 PRK_NATIVE_BUILD = join(FAASM_HOME, "ParResKernels")
@@ -115,7 +121,9 @@ def func(ctx, clean=False):
 
         if res.returncode != 0:
             print(
-                "Making kernel in {} with target {} failed".format(subdir, make_target)
+                "Making kernel in {} with target {} failed".format(
+                    subdir, make_target
+                )
             )
             has_failed = True
 
@@ -171,7 +179,12 @@ def invoke(ctx, func, native=False, iface=None, np=8):
     else:
         host, port = get_invoke_host_port()
         cmd_out = invoke_impl(
-            FAASM_USER, func, cmdline=cmdline, host=host, port=port, mpi_world_size=np
+            FAASM_USER,
+            func,
+            cmdline=cmdline,
+            host=host,
+            port=port,
+            mpi_world_size=np,
         )
 
     _parse_prk_out(func, cmd_out)

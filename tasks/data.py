@@ -54,10 +54,14 @@ def reuters_upload_s3(ctx, micro=False):
     Upload data for the reuters experiment to S3
     """
     if not micro:
-        _do_s3_upload(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+        _do_s3_upload(
+            _REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME
+        )
 
     _do_s3_upload(
-        _REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME
+        _REUTERS_MICRO_TAR_PATH,
+        _REUTERS_MICRO_TAR_DIR_NAME,
+        _REUTERS_MICRO_TAR_NAME,
     )
 
 
@@ -74,14 +78,18 @@ def genomics_upload_s3(ctx):
     """
     Upload data for the genomics experiment to S3
     """
-    _do_s3_upload(_GENOMICS_TAR_PATH, _GENOMICS_TAR_DIR_NAME, _GENOMICS_TAR_NAME)
+    _do_s3_upload(
+        _GENOMICS_TAR_PATH, _GENOMICS_TAR_DIR_NAME, _GENOMICS_TAR_NAME
+    )
 
 
 def _do_s3_upload(tar_path, tar_dir, tar_name):
     # Compress
     print("Creating archive of data {}".format(tar_path))
     check_output(
-        "tar -cf {} {}".format(tar_path, tar_dir), shell=True, cwd=FAASM_DATA_DIR
+        "tar -cf {} {}".format(tar_path, tar_dir),
+        shell=True,
+        cwd=FAASM_DATA_DIR,
     )
 
     # Upload
@@ -99,10 +107,14 @@ def reuters_download_s3(ctx, micro=False):
     Download data for the reuters experiment from S3
     """
     if not micro:
-        _do_s3_download(_REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME)
+        _do_s3_download(
+            _REUTERS_TAR_PATH, _REUTERS_TAR_DIR_NAME, _REUTERS_TAR_NAME
+        )
 
     _do_s3_download(
-        _REUTERS_MICRO_TAR_PATH, _REUTERS_MICRO_TAR_DIR_NAME, _REUTERS_MICRO_TAR_NAME
+        _REUTERS_MICRO_TAR_PATH,
+        _REUTERS_MICRO_TAR_DIR_NAME,
+        _REUTERS_MICRO_TAR_NAME,
     )
 
 
@@ -119,7 +131,9 @@ def genomics_download_s3(ctx):
     """
     Download data for the genomics experiment from S3
     """
-    _do_s3_download(_GENOMICS_TAR_PATH, _GENOMICS_TAR_DIR_NAME, _GENOMICS_TAR_NAME)
+    _do_s3_download(
+        _GENOMICS_TAR_PATH, _GENOMICS_TAR_DIR_NAME, _GENOMICS_TAR_NAME
+    )
 
 
 def _do_s3_download(tar_path, tar_dir, tar_name):
