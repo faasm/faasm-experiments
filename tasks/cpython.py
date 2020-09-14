@@ -5,12 +5,15 @@ import os
 
 from invoke import task
 
+from multiprocessing import cpu_count
+
+from faasmcli.util.files import clean_dir
 from tasks.util.env import EXPERIMENTS_THIRD_PARTY
 from faasmcli.util.toolchain import (
     BASE_CONFIG_CMD,
     WASM_CFLAGS,
-    WASM_CXXFLAGS,
     WASM_HOST,
+    WASM_BUILD,
     WASM_LDFLAGS,    
 )
 
@@ -24,7 +27,11 @@ CPYTHON_DIR = join(EXPERIMENTS_THIRD_PARTY, "cpython")
 @task
 def lib(ctx, clean=False):
     work_dir = join(CPYTHON_DIR)
+    build_dir = join(work_dir, "build", "wasm")
+    install_dir = join(work_dir, "install", "wasm")
 
+    clean_dir(build_dir, clean)
+    clean_dir(install_dir, clean)
     if clean:
         run("make clean", shell=True, cwd=work_dir)
 
@@ -35,9 +42,11 @@ def lib(ctx, clean=False):
     configure_cmd.extend([
         "--with-pydebug",
         "--disable-ipv6",
-        "--without-gcc",
         "--without-pymalloc",
-        "--disable-shared"
+        "--disable-shared",
+        "--build={}".format(WASM_BUILD),
+        "--host={}".format(WASM_HOST),
+        "--prefix={}".format(install_dir)
         ])
 
     cflags = [
@@ -47,6 +56,7 @@ def lib(ctx, clean=False):
 
     ldflags = [
             WASM_LDFLAGS,
+            "-static",
             ]
     ldflags = " ".join(ldflags)
 
@@ -65,4 +75,16 @@ def lib(ctx, clean=False):
         raise RuntimeError("CPython configure failed ({})".format(
             res.returncode
             ))
+
+    cpus = int(cpu_count()) - 1
+    make_cmd = [
+        "make -j {}".format(cpus),
+        'LDFLAGS="-static"',
+        'LINKFORSHARED=" "',
+    ]
+    make_cmd = " ".join(make_cmd)
+
+    res = run(make_cmd, shell=True, cwd=work_dir)
+    if res.returncode != 0:
+        raise RuntimeError("CPython make failed ({})".format(res.returncode))
 

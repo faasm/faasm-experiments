@@ -9,6 +9,7 @@ from . import (
     bench_time,
     bench_tpt,
     clapack,
+    cpython,
     data,
     dev,
     experiments,
@@ -22,6 +23,7 @@ from . import (
 
 # Tasks from this repo
 ns.add_collection(clapack)
+ns.add_collection(cpython)
 ns.add_collection(data)
 ns.add_collection(dev)
 ns.add_collection(experiments)
