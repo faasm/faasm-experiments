@@ -24,9 +24,11 @@ def lib(ctx, clean=False):
     clean_dir(work_dir, clean)
 
     env_vars = copy(os.environ)
-    env_vars.update({
-        "HOROVOD_WITHOUT_GLOO": "1",
-    })
+    env_vars.update(
+        {
+            "HOROVOD_WITHOUT_GLOO": "1",
+        }
+    )
 
     cmake_cmd = [
         "cmake",
@@ -53,4 +55,3 @@ def lib(ctx, clean=False):
     res = run("ninja install", shell=True, cwd=work_dir)
     if res.returncode != 0:
         raise RuntimeError("Horovod install failed")
-
