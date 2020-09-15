@@ -49,7 +49,9 @@ GENOMICS_USER = "gene"
 
 @task
 def func(ctx, clean=False):
-    wasm_cmake(EXPERIMENTS_FUNC_DIR, EXPERIMENTS_FUNC_BUILD_DIR, "mapper", clean=clean)
+    wasm_cmake(
+        EXPERIMENTS_FUNC_DIR, EXPERIMENTS_FUNC_BUILD_DIR, "mapper", clean=clean
+    )
 
     wasm_file = join(EXPERIMENTS_FUNC_BUILD_DIR, "gene", "mapper.wasm")
     wasm_copy_upload("gene", "mapper", wasm_file)
@@ -69,7 +71,11 @@ def mapping(ctx, download=False):
     for read_idx in read_idxs:
         print("Mapping read chunk {}".format(read_idx))
         call_id = invoke_impl(
-            "gene", "mapper", input="{}".format(read_idx), asynch=True, poll=False
+            "gene",
+            "mapper",
+            input="{}".format(read_idx),
+            asynch=True,
+            poll=False,
         )
         call_ids.append(call_id)
 
@@ -96,7 +102,11 @@ def mapping(ctx, download=False):
 
                 # Download the results of this read
                 if download:
-                    print("Downloading output for read chunk {}.".format(read_idx))
+                    print(
+                        "Downloading output for read chunk {}.".format(
+                            read_idx
+                        )
+                    )
                     state_key = "output_read_{}".format(read_idx)
 
                     if not exists(GENOMICS_OUTPUT_DIR):
@@ -134,7 +144,11 @@ def _do_native_mapping(reads_file, index_file, output_file):
         print("Did not find gem3 mapper at {}".format(GEM3_MAPPER))
         exit(1)
 
-    print("Native mapping {} -> {}".format(basename(reads_file), basename(index_file)))
+    print(
+        "Native mapping {} -> {}".format(
+            basename(reads_file), basename(index_file)
+        )
+    )
 
     cmd = [
         GEM3_MAPPER,
@@ -206,14 +220,20 @@ def download_genome(ctx):
         # Extract zip
         print("Extracting {}".format(download_file))
         check_output(
-            "gunzip -f {}".format(download_file), shell=True, cwd=GENOMICS_DATA_DIR
+            "gunzip -f {}".format(download_file),
+            shell=True,
+            cwd=GENOMICS_DATA_DIR,
         )
 
         # Check unzipping
         filename = zip_filename.replace(".gz", "")
         unzipped_file = join(GENOMICS_DATA_DIR, filename)
         if not exists(unzipped_file):
-            print("Didn't find unzipped file at {} as expected.".format(unzipped_file))
+            print(
+                "Didn't find unzipped file at {} as expected.".format(
+                    unzipped_file
+                )
+            )
             exit(1)
 
         print("Unzipped file at {}".format(unzipped_file))
@@ -230,7 +250,9 @@ def index_genome(ctx):
     )
 
     if not exists(GEM3_INDEXER):
-        raise RuntimeError("Expected to find executable at {}".format(GEM3_INDEXER))
+        raise RuntimeError(
+            "Expected to find executable at {}".format(GEM3_INDEXER)
+        )
 
     for idx, name in enumerate(CHROMOSOME_NUMBERS):
         input_file = join(
@@ -317,7 +339,9 @@ def _do_func_upload(idx, host, port):
     func_name = "mapper_index{}".format(idx)
     print("Uploading function gene/{} to {}:{}".format(func_name, host, port))
 
-    file_path = join(EXPERIMENTS_ROOT, "third-party/gem3-mapper/wasm_bin/gem-mapper")
+    file_path = join(
+        EXPERIMENTS_ROOT, "third-party/gem3-mapper/wasm_bin/gem-mapper"
+    )
     url = "http://{}:{}/f/gene/{}".format(host, port, func_name)
     curl_file(url, file_path)
 
@@ -375,7 +399,9 @@ def download_output(ctx):
             output_filename = "faasm_{}_{}.sam".format(read_idx, index_chunk)
             output_file = join(output_dir, output_filename)
             state_key = "map_out_{}_{}".format(read_idx, index_chunk)
-            task_args.append((GENOMICS_USER, state_key, output_file, host, port))
+            task_args.append(
+                (GENOMICS_USER, state_key, output_file, host, port)
+            )
 
     p = Pool(os.cpu_count())
     p.starmap(download_binary_state, task_args)

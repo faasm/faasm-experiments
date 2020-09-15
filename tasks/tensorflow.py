@@ -26,7 +26,9 @@ from tasks.util.env import (
 
 @task
 def func(ctx, clean=False):
-    wasm_cmake(EXPERIMENTS_FUNC_DIR, EXPERIMENTS_FUNC_BUILD_DIR, "image", clean=clean)
+    wasm_cmake(
+        EXPERIMENTS_FUNC_DIR, EXPERIMENTS_FUNC_BUILD_DIR, "image", clean=clean
+    )
 
     wasm_file = join(EXPERIMENTS_FUNC_BUILD_DIR, "tf", "image.wasm")
     wasm_copy_upload("tf", "image", wasm_file)
@@ -56,7 +58,9 @@ def lib(ctx, clean=False):
         [
             'CFLAGS="{} -ftls-model=local-exec"'.format(WASM_CFLAGS),
             'CXXFLAGS="{}"'.format(WASM_CXXFLAGS),
-            'LDFLAGS="{} -Xlinker --max-memory=4294967296"'.format(WASM_LDFLAGS),
+            'LDFLAGS="{} -Xlinker --max-memory=4294967296"'.format(
+                WASM_LDFLAGS
+            ),
             "MINIMAL_SRCS=",
             "TARGET={}".format(WASM_HOST),
             "BUILD_WITH_MMAP=false",

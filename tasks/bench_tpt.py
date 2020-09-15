@@ -4,7 +4,12 @@ from os.path import exists, join
 from subprocess import call
 
 import numpy as np
-from faasmcli.util.env import BENCHMARK_BUILD, PROJ_ROOT, RESULT_DIR, set_benchmark_env
+from faasmcli.util.env import (
+    BENCHMARK_BUILD,
+    PROJ_ROOT,
+    RESULT_DIR,
+    set_benchmark_env,
+)
 from invoke import task
 
 from tasks.util.env import EXPERIMENTS_ROOT
@@ -40,10 +45,8 @@ def _write_tpt_lat(run_num, runtime_name, target_tpt, csv_out):
     n_diff = abs(n_times - n_lats)
 
     tolerance = int(n_lats * 0.01)
-    msg = (
-        "Requests and latencies count doesn't match within tolerance ({} vs {})".format(
-            n_times, n_lats
-        )
+    msg = "Requests and latencies count doesn't match within tolerance ({} vs {})".format(
+        n_times, n_lats
     )
     assert n_diff <= tolerance, msg
 

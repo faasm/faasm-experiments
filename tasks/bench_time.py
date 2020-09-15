@@ -4,7 +4,12 @@ from os.path import exists, join
 from subprocess import call
 from tempfile import NamedTemporaryFile
 
-from faasmcli.util.env import BENCHMARK_BUILD, PROJ_ROOT, RESULT_DIR, set_benchmark_env
+from faasmcli.util.env import (
+    BENCHMARK_BUILD,
+    PROJ_ROOT,
+    RESULT_DIR,
+    set_benchmark_env,
+)
 from invoke import task
 
 from tasks.util.env import EXPERIMENTS_ROOT
@@ -147,7 +152,9 @@ def _do_time(runtime_name, cmd, iterations, csv_out):
 
     # Check return code
     if time_stats["Exit status"] != "0":
-        raise RuntimeError("Time command failed. Time stats: {}".format(time_stats))
+        raise RuntimeError(
+            "Time command failed. Time stats: {}".format(time_stats)
+        )
 
     # Map time labels to output labels
     label = "Elapsed (wall clock) time (h:mm:ss or m:ss)"

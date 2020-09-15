@@ -21,7 +21,7 @@ def lib(ctx, clean=False):
 
     clean_dir(work_dir, clean)
 
-    env_vars = copy(os.environ)    
+    env_vars = copy(os.environ)
 
     cmake_cmd = [
         "cmake",
@@ -57,9 +57,9 @@ def lib(ctx, clean=False):
     print("RUNNING CMAKE")
     res = run(cmake_str, shell=True, cwd=work_dir, env=env_vars)
     if res.returncode != 0:
-        raise RuntimeError("MXNet CMake config failed ({})".format(
-            res.returncode
-            ))
+        raise RuntimeError(
+            "MXNet CMake config failed ({})".format(res.returncode)
+        )
 
     print("RUNNING NINJA")
     res = run("ninja -v mxnet", shell=True, cwd=work_dir, env=env_vars)
@@ -70,4 +70,3 @@ def lib(ctx, clean=False):
     res = run("ninja install", shell=True, cwd=work_dir)
     if res.returncode != 0:
         raise RuntimeError("MXNet install failed ({})".format(res.returncode))
-

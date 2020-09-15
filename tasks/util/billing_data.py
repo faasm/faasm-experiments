@@ -37,7 +37,9 @@ class BillingData:
     def parse(self, billing_file):
         with open(billing_file, "r") as fh:
             for line in fh:
-                dt_str, label, value = [l.strip() for l in line.split(" ") if l.strip()]
+                dt_str, label, value = [
+                    l.strip() for l in line.split(" ") if l.strip()
+                ]
 
                 entry = (Decimal(dt_str), Decimal(value))
 
@@ -63,7 +65,8 @@ class BillingData:
         self.net_sent_mb = self._rebase(self.net_sent_mb)
 
         self.max_disk = max(
-            self._max_stat(self.disk_write_mb), self._max_stat(self.disk_read_mb)
+            self._max_stat(self.disk_write_mb),
+            self._max_stat(self.disk_read_mb),
         )
         self.max_net = max(
             self._max_stat(self.net_sent_mb), self._max_stat(self.net_recv_mb)

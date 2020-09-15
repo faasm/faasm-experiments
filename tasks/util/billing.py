@@ -60,7 +60,9 @@ def parse_billing(result_dir, summary_out_dir):
     total_net_sent = _total_diff_min_max_across_all(results, "NET_SENT_MB")
     total_net_recv = _total_diff_min_max_across_all(results, "NET_RECV_MB")
     total_cpu_user = _total_diff_min_max_across_all(results, "CPU_TIME_USER")
-    total_cpu_iowait = _total_diff_min_max_across_all(results, "CPU_TIME_IOWAIT")
+    total_cpu_iowait = _total_diff_min_max_across_all(
+        results, "CPU_TIME_IOWAIT"
+    )
     total_cpu_idle = _total_diff_min_max_across_all(results, "CPU_TIME_IDLE")
     total_disk_write = _total_diff_min_max_across_all(results, "DISK_WRITE_MB")
     total_used_mem = _total_diff_min_max_across_all(results, "MEMORY_USED")

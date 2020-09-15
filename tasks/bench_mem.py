@@ -6,8 +6,16 @@ from os.path import exists, join
 from subprocess import call, check_output
 from time import sleep
 
-from faasmcli.util.env import BENCHMARK_BUILD, PROJ_ROOT, RESULT_DIR, set_benchmark_env
-from faasmcli.util.memory import get_total_memory_for_pid, get_total_memory_for_pids
+from faasmcli.util.env import (
+    BENCHMARK_BUILD,
+    PROJ_ROOT,
+    RESULT_DIR,
+    set_benchmark_env,
+)
+from faasmcli.util.memory import (
+    get_total_memory_for_pid,
+    get_total_memory_for_pids,
+)
 from faasmcli.util.process import (
     count_threads_for_name,
     get_all_pids_for_name,
@@ -78,7 +86,9 @@ def faasm_count(ctx):
     """
     Memory benchmark - count Faasm instances
     """
-    threads = count_threads_for_name("bench_mem", exact=True, exclude_main=True)
+    threads = count_threads_for_name(
+        "bench_mem", exact=True, exclude_main=True
+    )
     print("Faasm threads = {}".format(threads))
 
 
@@ -195,7 +205,11 @@ def _run_sleep_bench(
 
     pids = get_all_pids_for_name(process_name)
     if len(pids) != len(sleep_procs):
-        print("ERROR: got {} pids but expected {}".format(len(pids), len(sleep_procs)))
+        print(
+            "ERROR: got {} pids but expected {}".format(
+                len(pids), len(sleep_procs)
+            )
+        )
         exit(1)
 
     mem_outputs = []
@@ -242,7 +256,9 @@ def _run_function_in_batches(n_total, batch_size, func):
 def _start_docker_mem(n_workers, network):
     def _do_docker_mem(n):
         start_cmd = "./bin/docker_mem_start.sh {} {}".format(network, n)
-        print("Kicking off Docker batch size {} on network {}".format(n, network))
+        print(
+            "Kicking off Docker batch size {} on network {}".format(n, network)
+        )
         start_ret_code = call(start_cmd, shell=True, cwd=EXPERIMENTS_ROOT)
         if start_ret_code != 0:
             raise RuntimeError("Start Docker benchmark failed")

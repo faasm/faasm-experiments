@@ -25,4 +25,3 @@ def lib(ctx, clean=False):
         raise RuntimeError("Make command failed")
 
     res = run("make install", shell=True, cwd=work_dir)
-

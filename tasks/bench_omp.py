@@ -53,7 +53,9 @@ def multi_pi(ctx, number_times=6):
             for iter_name in sizes.keys():
                 for num_threads in threads:
                     for _ in range(backoff(num_threads)):
-                        result = f"{iter_name},{num_threads},{mode},{times[idx]}\n"
+                        result = (
+                            f"{iter_name},{num_threads},{mode},{times[idx]}\n"
+                        )
                         idx += 1
                         csv.write(result)
 
