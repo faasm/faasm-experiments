@@ -18,7 +18,3 @@
 [submodule "third-party/faasm-clapack"]
 	path = third-party/faasm-clapack
 	url = https://github.com/Shillaker/faasm-clapack
-[submodule "third-party/cpython"]
-	path = third-party/cpython
-    url = https://github.com/Shillaker/cpython
-    branch = faasm
