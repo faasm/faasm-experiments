@@ -1,20 +1,20 @@
 [submodule "third-party/gem3-mapper"]
 	path = third-party/gem3-mapper
-	url = https://github.com/Shillaker/gem3-mapper.git
+	url = https://github.com/faasm/gem3-mapper.git
 [submodule "third-party/tensorflow"]
 	path = third-party/tensorflow
-	url = https://github.com/Shillaker/tensorflow.git
+	url = https://github.com/faasm/tensorflow.git
 [submodule "third-party/ParResKernels"]
 	path = third-party/ParResKernels
-	url = https://github.com/Shillaker/Kernels.git
+	url = https://github.com/faasm/Kernels.git
 [submodule "third-party/horovod"]
 	path = third-party/horovod
-    url = https://github.com/Shillaker/horovod
+    url = https://github.com/faasm/horovod
     branch = faasm
 [submodule "third-party/mxnet"]
 	path = third-party/mxnet
-    url = https://github.com/Shillaker/incubator-mxnet
+    url = https://github.com/faasm/incubator-mxnet
     branch = faasm
 [submodule "third-party/faasm-clapack"]
 	path = third-party/faasm-clapack
-	url = https://github.com/Shillaker/faasm-clapack
+	url = https://github.com/faasm/faasm-clapack
