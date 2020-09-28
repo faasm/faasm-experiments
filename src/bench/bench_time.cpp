@@ -1,7 +1,7 @@
-#include <wasm/WasmModule.h>
-#include <util/config.h>
 #include <profiler/function.h>
+#include <util/config.h>
 #include <util/timing.h>
+#include <wasm/WasmModule.h>
 
 #define USER "demo"
 // #define USER "python"
@@ -10,7 +10,8 @@
 
 static bool forceNoops = true;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
     util::initLogging();
     const std::shared_ptr<spdlog::logger> logger = util::getLogger();
 

@@ -1,17 +1,18 @@
+#include <iostream>
 #include <util/config.h>
 #include <wavm/WAVMWasmModule.h>
-#include <iostream>
 
-int main() {
+int main()
+{
     message::Message call;
     call.set_user("demo");
     call.set_function("noop");
 
-    util::SystemConfig &conf = util::getSystemConfig();
+    util::SystemConfig& conf = util::getSystemConfig();
     conf.logLevel = "off";
 
     // Create a lock file
-    const char *lockFile = "/tmp/capacity.lock";
+    const char* lockFile = "/tmp/capacity.lock";
     int fd = open(lockFile, O_RDWR | O_CREAT, 0666);
     if (fd == -1) {
         printf("Failed to open lock file: %s\n", lockFile);
@@ -41,8 +42,8 @@ int main() {
             std::cout << "Created " << nModules << " modules" << std::endl;
 
             // Wait while lock file exists
-            FILE *thisFp = fopen(lockFile, "r");
-            while(thisFp != nullptr) {
+            FILE* thisFp = fopen(lockFile, "r");
+            while (thisFp != nullptr) {
                 printf("Child worker waiting for lock to go\n");
                 sleep(10);
 

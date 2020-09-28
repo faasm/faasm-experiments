@@ -6,20 +6,20 @@
 
 // Index chunks
 #define N_CHUNKS 24
-static int indexChunks[N_CHUNKS] = {
-	1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
-	11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
-	21, 22, 23, 24
-};
+static int indexChunks[N_CHUNKS] = { 1,  2,  3,  4,  5,  6,  7,  8,
+                                     9,  10, 11, 12, 13, 14, 15, 16,
+                                     17, 18, 19, 20, 21, 22, 23, 24 };
 
 // Variable to control whether we invoke a different function per index chunk
 // or just the same function each time
 static bool mapperPerIndex = false;
 
 /*
- * This function fans out the mapping for a given chunk of reads and awaits the results.
+ * This function fans out the mapping for a given chunk of reads and awaits the
+ * results.
  */
-FAASM_MAIN_FUNC() {
+FAASM_MAIN_FUNC()
+{
     std::string stringInput = faasm::getStringInput("");
     if (stringInput.empty()) {
         printf("Must provide function with read chunk index as input.\n");
@@ -35,18 +35,19 @@ FAASM_MAIN_FUNC() {
     for (int i = 0; i < N_CHUNKS; i++) {
         // Prepare function input
         int chunkIdx = indexChunks[i];
-        int input[2] = {readIdx, chunkIdx};
-        auto inputBytes = (unsigned char *) input;
+        int input[2] = { readIdx, chunkIdx };
+        auto inputBytes = (unsigned char*)input;
 
         // Dispatch the function
         std::string funcName;
-        if(mapperPerIndex) {
+        if (mapperPerIndex) {
             funcName = "mapper_index" + std::to_string(chunkIdx);
         } else {
             funcName = "mapper_index";
         }
 
-        unsigned int callId = faasmChainFunctionInput(funcName.c_str(), inputBytes, 2 * sizeof(int));
+        unsigned int callId = faasmChainFunctionInput(
+          funcName.c_str(), inputBytes, 2 * sizeof(int));
         printf("Chained call %u\n", callId);
         callIds[i] = callId;
     }

@@ -1,15 +1,15 @@
-#include <util/logging.h>
-#include <util/strings.h>
-#include <util/files.h>
 #include <util/environment.h>
+#include <util/files.h>
+#include <util/logging.h>
 #include <util/macros.h>
+#include <util/strings.h>
 
 #include <storage/SparseMatrixFileSerialiser.h>
 
 #include <eigen3/Eigen/Sparse>
 
-#include <string>
 #include <boost/filesystem.hpp>
+#include <string>
 
 // NOTE - these are also hard-coded in the actual SVM function and must match
 #define REUTERS_N_FEATURES 47236
@@ -19,14 +19,17 @@
 using namespace boost::filesystem;
 
 /**
- * The reuters data consists of a list of articles with categories assigned to them.
- * Each article is given a weight for each of a set of features.
+ * The reuters data consists of a list of articles with categories assigned to
+ * them. Each article is given a weight for each of a set of features.
  */
-void parseReutersData(const path &downloadDir, const path &outputDir, long nExamples) {
-    const std::shared_ptr<spdlog::logger> &logger = util::getLogger();
+void parseReutersData(const path& downloadDir,
+                      const path& outputDir,
+                      long nExamples)
+{
+    const std::shared_ptr<spdlog::logger>& logger = util::getLogger();
 
     // Use the test set for training (as Hogwild does)
-    std::vector<std::string> files = {"test"};
+    std::vector<std::string> files = { "test" };
 
     int exampleIdx = 0;
     int maxFeature = 0;
@@ -36,7 +39,7 @@ void parseReutersData(const path &downloadDir, const path &outputDir, long nExam
     std::vector<int> featureCounts(REUTERS_N_FEATURES);
 
     // Dataset is split across multiple files
-    for (const auto &f : files) {
+    for (const auto& f : files) {
         path thisFile = downloadDir;
         thisFile.append(f);
         logger->info("Reading from {} ", thisFile.c_str());
@@ -46,14 +49,16 @@ void parseReutersData(const path &downloadDir, const path &outputDir, long nExam
         std::string line;
         while (getline(input, line) && exampleIdx < nExamples) {
             // Split up the line
-            const std::vector<std::string> lineTokens = util::splitString(line, ' ');
+            const std::vector<std::string> lineTokens =
+              util::splitString(line, ' ');
 
-            // Treat the classification value for this article as a double to ease serialisation/ deserialisation
+            // Treat the classification value for this article as a double to
+            // ease serialisation/ deserialisation
             double cat = std::stod(lineTokens[0]);
             categories.at(exampleIdx) = cat;
 
-            // Iterate through the feature weights for this example (there will be one to many)
-            // They are split as <feature>:<weight>
+            // Iterate through the feature weights for this example (there will
+            // be one to many) They are split as <feature>:<weight>
             for (int i = 1; i < lineTokens.size(); i++) {
                 // Ignore empty token
                 std::basic_string<char> thisToken = lineTokens[i];
@@ -62,12 +67,14 @@ void parseReutersData(const path &downloadDir, const path &outputDir, long nExam
                 }
 
                 // Split up index:value part
-                const std::vector<std::string> valueTokens = util::splitString(thisToken, ':');
+                const std::vector<std::string> valueTokens =
+                  util::splitString(thisToken, ':');
                 int feature = std::stoi(valueTokens[0]);
                 double weight = std::stod(valueTokens[1]);
 
                 // Add to matrix
-                triplets.emplace_back(Eigen::Triplet<double>(feature, exampleIdx, weight));
+                triplets.emplace_back(
+                  Eigen::Triplet<double>(feature, exampleIdx, weight));
 
                 // Record an occurrence of this feature
                 featureCounts.at(feature)++;
@@ -86,11 +93,13 @@ void parseReutersData(const path &downloadDir, const path &outputDir, long nExam
     // Note, features are zero based
     int nFeatures = maxFeature + 1;
     if (nExamples == REUTERS_N_EXAMPLES && nFeatures != REUTERS_N_FEATURES) {
-        logger->error("Expected {} features but got {}", REUTERS_N_FEATURES, maxFeature);
+        logger->error(
+          "Expected {} features but got {}", REUTERS_N_FEATURES, maxFeature);
     }
 
     if (categories.size() != nExamples) {
-        logger->error("Got {} categories but {} examples", categories.size(), nExamples);
+        logger->error(
+          "Got {} categories but {} examples", categories.size(), nExamples);
     }
 
     logger->info("Totals: {} features and {} examples", maxFeature, exampleIdx);
@@ -110,7 +119,8 @@ void parseReutersData(const path &downloadDir, const path &outputDir, long nExam
     catFile.append("outputs");
 
     logger->info("Writing {} bytes to {}", nCatBytes, catFile.c_str());
-    util::writeBytesToFile(catFile.string(), std::vector<uint8_t>(catPtr, catPtr + nCatBytes));
+    util::writeBytesToFile(catFile.string(),
+                           std::vector<uint8_t>(catPtr, catPtr + nCatBytes));
 
     // Write feature counts to file
     long nFeatureCountBytes = featureCounts.size() * sizeof(int);
@@ -119,14 +129,18 @@ void parseReutersData(const path &downloadDir, const path &outputDir, long nExam
     path featureCountsFile = outputDir;
     featureCountsFile.append("feature_counts");
 
-    logger->info("Writing {} bytes to {}", nFeatureCountBytes, featureCountsFile.c_str());
-    util::writeBytesToFile(featureCountsFile.string(), std::vector<uint8_t>(featureCountsPtr,
-                                                                            featureCountsPtr + nFeatureCountBytes));
+    logger->info(
+      "Writing {} bytes to {}", nFeatureCountBytes, featureCountsFile.c_str());
+    util::writeBytesToFile(
+      featureCountsFile.string(),
+      std::vector<uint8_t>(featureCountsPtr,
+                           featureCountsPtr + nFeatureCountBytes));
 }
 
-int main() {
+int main()
+{
     util::initLogging();
-    const std::shared_ptr<spdlog::logger> &logger = util::getLogger();
+    const std::shared_ptr<spdlog::logger>& logger = util::getLogger();
 
     path faasmDir(util::getEnvVar("HOME", ""));
     faasmDir.append("faasm");

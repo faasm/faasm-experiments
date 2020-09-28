@@ -11,8 +11,8 @@ elsewhere, just change the symlink.
 
 ## Local Set-up
 
-If building and these experiments locally, you should set up Faasm for 
-[local development](https://github.com/lsds/faasm/blob/master/docs/local_dev.md).
+If building and these experiments locally, you should set up Faasm for [local
+development](https://github.com/lsds/faasm/blob/master/docs/development.md).
 
 You must then make sure WAVM and WAMR are up to date:
 
@@ -92,8 +92,8 @@ inv -l
 
 ## Knative Experiments
 
-Experiments that are run on a Kubernetes cluster must be run from a machine with access 
-to the cluster that can run `kubectl` and `kn`.
+Experiments that are run on a Kubernetes cluster must be run from a machine with
+access to the cluster that can run `kubectl` and `kn`.
 
 ## Billing Estimates
 

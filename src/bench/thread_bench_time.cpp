@@ -1,9 +1,10 @@
 #include <util/logging.h>
 
-void _runFunction() {
+void _runFunction()
+{
     int n = 4;
     // Have to do something here to avoid compiler optimising it away
-    int *a = (int *) malloc((n + 1) * sizeof(int));
+    int* a = (int*)malloc((n + 1) * sizeof(int));
 
     for (int i = 0; i < n; i++) {
         a[i] = a[i + 1];
@@ -13,8 +14,8 @@ void _runFunction() {
     free(a);
 }
 
-
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
     util::initLogging();
     const std::shared_ptr<spdlog::logger> logger = util::getLogger();
 
