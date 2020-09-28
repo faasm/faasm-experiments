@@ -3,10 +3,11 @@
 #include <profiler/Profiler.h>
 
 namespace runner {
-    class GenericFunctionProfiler : public Profiler {
-    public:
-        GenericFunctionProfiler(std::string userIn, std::string funcName);
+class GenericFunctionProfiler : public Profiler
+{
+  public:
+    GenericFunctionProfiler(std::string userIn, std::string funcName);
 
-        void runNative() override;
-    };
+    void runNative() override;
+};
 }

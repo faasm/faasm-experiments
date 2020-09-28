@@ -1,10 +1,10 @@
-#include <wasm/WasmModule.h>
-#include <util/config.h>
-#include <util/timing.h>
-#include <util/locks.h>
-#include <profiler/function.h>
 #include <fstream>
+#include <profiler/function.h>
 #include <unistd.h>
+#include <util/config.h>
+#include <util/locks.h>
+#include <util/timing.h>
+#include <wasm/WasmModule.h>
 
 #define USER "demo"
 #define FUNCTION "noop"
@@ -19,8 +19,8 @@ static std::string durationLogFile;
 bool forceNoop = true;
 static util::TimePoint startTimer;
 
-
-void _execFunction(int requestCount) {
+void _execFunction(int requestCount)
+{
     if (requestCount > 0) {
         std::ofstream tptFile;
         tptFile.open(tptLogFile.c_str(), std::ios_base::app);
@@ -37,7 +37,7 @@ void _execFunction(int requestCount) {
         tptFile.close();
     }
 
-    const util::TimePoint &start = util::startTimer();
+    const util::TimePoint& start = util::startTimer();
     runner::benchmarkExecutor(USER, FUNCTION);
     double elapsedMillis = util::getTimeDiffMillis(start);
 
@@ -56,13 +56,14 @@ void _execFunction(int requestCount) {
     }
 }
 
-
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
     util::initLogging();
     const std::shared_ptr<spdlog::logger> logger = util::getLogger();
 
     if (argc < 4) {
-        logger->error("Must provide mode, request delay (ms) and duration (ms)");
+        logger->error(
+          "Must provide mode, request delay (ms) and duration (ms)");
         return 1;
     }
 
@@ -91,7 +92,9 @@ int main(int argc, char *argv[]) {
     int requestDelay = std::stoi(argv[2]);
     int duration = std::stoi(argv[3]);
 
-    logger->info("Faasm throughput bench with delay={}ms and duration={}ms", requestDelay, duration);
+    logger->info("Faasm throughput bench with delay={}ms and duration={}ms",
+                 requestDelay,
+                 duration);
 
     std::string systemName;
     if (isWarm) {
@@ -133,7 +136,7 @@ int main(int argc, char *argv[]) {
     tptFile.close();
 
     // Wait for any stragglers
-    for (auto &t : threads) {
+    for (auto& t : threads) {
         if (t.joinable()) {
             t.join();
         }
@@ -146,7 +149,8 @@ int main(int argc, char *argv[]) {
     durationFile << finalDuration << " DURATION " << std::endl;
     durationFile.close();
 
-    std::cout << "Finished after " << finalDuration << "ms and " << requestCount << " requests." << std::endl;
+    std::cout << "Finished after " << finalDuration << "ms and " << requestCount
+              << " requests." << std::endl;
 
     return 0;
 }

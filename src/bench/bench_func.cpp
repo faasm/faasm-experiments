@@ -1,12 +1,12 @@
 #include "GenericFunctionProfiler.h"
 
-#include <util/logging.h>
 #include <fstream>
+#include <util/logging.h>
 
-
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
     util::initLogging();
-    const std::shared_ptr <spdlog::logger> &logger = util::getLogger();
+    const std::shared_ptr<spdlog::logger>& logger = util::getLogger();
 
     if (argc < 4) {
         logger->error("Usage:\nbench_func <user> <function> <nNative> <nWasm>");

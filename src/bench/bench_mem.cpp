@@ -4,7 +4,8 @@
 
 #define USER "demo"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
     util::initLogging();
     const std::shared_ptr<spdlog::logger> logger = util::getLogger();
 
@@ -33,7 +34,8 @@ int main(int argc, char *argv[]) {
     logger->info("Pre-flighting demo/{}", function);
     runner::preflightFunction(USER, function);
 
-    logger->info("Running benchmark on demo/{} with {} workers", function, nWorkers);
+    logger->info(
+      "Running benchmark on demo/{} with {} workers", function, nWorkers);
 
     // Spawn worker threads to run the task in parallel
     std::vector<std::thread> threads;
@@ -43,7 +45,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Wait for things to finish
-    for (auto &t : threads) {
+    for (auto& t : threads) {
         if (t.joinable()) {
             t.join();
         }

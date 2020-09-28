@@ -1,8 +1,10 @@
-#include <sys/resource.h>
 #include <cstdio>
+#include <sys/resource.h>
 
-void printRLimit(int resource, const char* name) {
-    struct rlimit r{};
+void printRLimit(int resource, const char* name)
+{
+    struct rlimit r
+    {};
     getrlimit(resource, &r);
 
     rlim_t soft = r.rlim_cur;
@@ -11,7 +13,8 @@ void printRLimit(int resource, const char* name) {
     printf("%20s = %20li  %20li\n", name, soft, hard);
 }
 
-int main() {
+int main()
+{
     printf("Note, RLIM_INFINITY = %li\n\n", RLIM_INFINITY);
 
     printRLimit(RLIMIT_AS, "RLIMIT_AS");

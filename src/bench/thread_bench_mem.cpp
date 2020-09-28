@@ -1,11 +1,13 @@
-#include <util/logging.h>
 #include <unistd.h>
+#include <util/logging.h>
 
-void _runFunction() {
+void _runFunction()
+{
     sleep(10);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
     util::initLogging();
     const std::shared_ptr<spdlog::logger> logger = util::getLogger();
 
@@ -25,7 +27,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Rejoin
-    for (auto &t : threads) {
+    for (auto& t : threads) {
         if (t.joinable()) {
             t.join();
         }

@@ -21,9 +21,11 @@ def lib(ctx, clean=False):
     n_cpu = int(cpu_count()) - 1
 
     # Make libf2c first (needed by others)
-    run("make f2clib -j {}".format(n_cpu), shell=True, cwd=work_dir, check=True)
+    run(
+        "make f2clib -j {}".format(n_cpu), shell=True, cwd=work_dir, check=True
+    )
 
     # Make the rest
     run("make -j {}".format(n_cpu), shell=True, cwd=work_dir, check=True)
-    
+
     run("make install", shell=True, cwd=work_dir, check=True)
