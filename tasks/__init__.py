@@ -8,7 +8,6 @@ from . import (
     bench_omp,
     bench_time,
     bench_tpt,
-    clapack,
     data,
     dev,
     experiments,
@@ -21,7 +20,6 @@ from . import (
 )
 
 # Tasks from this repo
-ns.add_collection(clapack)
 ns.add_collection(data)
 ns.add_collection(dev)
 ns.add_collection(experiments)
