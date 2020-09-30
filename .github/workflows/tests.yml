@@ -14,6 +14,8 @@ jobs:
     steps:
       # --- Formatting checks ---
       - uses: actions/checkout@v2
+      - name: "Sync Faasm submodule"
+        run: "git submodule update --init third-party/faasm"
       - name: "Python formatting check"
         run: ./third-party/faasm/bin/check_black.sh
       - name: "C/C++ run formatting"
