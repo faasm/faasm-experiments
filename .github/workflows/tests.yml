@@ -18,4 +18,6 @@ jobs:
         run: ./third-party/faasm/bin/check_black.sh
       - name: "C/C++ run formatting"
         run: ./third-party/faasm/bin/run_clang_format.sh
+      - name: "Check for C/C++ formatting changes"
+        run: git diff --exit-code
 
