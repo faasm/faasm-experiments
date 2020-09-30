@@ -1,0 +1,29 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request: 
+    branches: [master]
+
+jobs:
+  tests:
+    runs-on: ubuntu-20.04
+    container:
+        image: faasm/base-test:0.4.9
+    steps:
+      # --- Formatting checks ---
+      - uses: actions/checkout@v2
+      - name: "Check out Faasm master"
+        run: "git checkout master"
+        working-directory: /usr/local/code/faasm
+      - name: "Update to latest master"
+        run: "git pull origin master"
+        working-directory: /usr/local/code/faasm
+      - name: "Python formatting check"
+        run: ./third-party/faasm/bin/check_black.sh
+      - name: "C/C++ run formatting"
+        run: ./third-party/faasm/bin/run_clang_format.sh
+      - name: "Check for C/C++ formatting changes"
+        run: git diff --exit-code
+
