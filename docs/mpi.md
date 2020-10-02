@@ -10,7 +10,7 @@ prompt or passwords.
 
 ## 1. Set up the VMs
 
-Follow the normal Faasm [bare metal setup](../third-party/faasm/docs/bare_metal.md).
+Follow the normal Faasm [bare metal setup](https://github.com/faasm/faasm/blob/master/docs/bare_metal.md).
 
 Then run the following from the root of _this_ repository:
 
