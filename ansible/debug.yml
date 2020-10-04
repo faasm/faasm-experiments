@@ -1,0 +1,8 @@
+---
+
+- hosts: worker
+  gather_facts: yes
+  tasks:
+  - debug:
+      var: ansible_processor_vcpus
+
