@@ -12,8 +12,6 @@ from . import (
     dev,
     experiments,
     genomics,
-    horovod,
-    mxnet,
     polybench,
     prk,
     tensorflow,
@@ -24,8 +22,6 @@ ns.add_collection(data)
 ns.add_collection(dev)
 ns.add_collection(experiments)
 ns.add_collection(genomics)
-ns.add_collection(horovod)
-ns.add_collection(mxnet)
 ns.add_collection(polybench)
 ns.add_collection(prk)
 ns.add_collection(tensorflow)
