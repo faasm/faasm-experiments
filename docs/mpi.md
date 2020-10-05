@@ -61,3 +61,19 @@ You can also specify CIDR address ranges:
 ```bash
 mpirun ... -mca btl_tcp_if_include 192.168.0.0/16 ...
 ```
+
+## Profiling MPI Applications
+
+For compatibility and in order to aid cross-compilation, we provide a set of
+tools to profile the execution of an MPI application.
+
+For static analysis, we use the [MPI-Usage](https://github.com/LLNL/MPI-Usage)
+tool.
+The script will inspect the pointed directory and output the different MPI
+routines used.
+For instance, to run it against the LAMMPS framework, use:
+
+```bash
+cd third-party/mpi-usage
+./mpiusage.py ../lammps/src
+```
