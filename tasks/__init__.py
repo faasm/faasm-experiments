@@ -25,6 +25,7 @@ ns.add_collection(genomics)
 ns.add_collection(polybench)
 ns.add_collection(prk)
 ns.add_collection(tensorflow)
+ns.add_collection(lammps)
 
 # Group benchmarking tasks
 bench_ns = Collection("bench")
