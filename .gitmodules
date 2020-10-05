@@ -10,3 +10,6 @@
 [submodule "third-party/mpi-usage"]
 	path = third-party/mpi-usage
 	url = https://github.com/LLNL/MPI-Usage
+[submodule "third-party/lammps"]
+	path = third-party/lammps
+	url = https://github.com/faasm/lammps
