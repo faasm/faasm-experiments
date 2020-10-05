@@ -7,3 +7,6 @@
 [submodule "third-party/ParResKernels"]
 	path = third-party/ParResKernels
 	url = https://github.com/faasm/Kernels.git
+[submodule "third-party/mpi-usage"]
+	path = third-party/mpi-usage
+	url = https://github.com/LLNL/MPI-Usage
