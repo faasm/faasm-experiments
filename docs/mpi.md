@@ -64,7 +64,7 @@ mpirun ... -mca btl_tcp_if_include 192.168.0.0/16 ...
 
 ## Profiling MPI Applications
 
-For compatibility and in order to aid cross-compilation, we provide a set of
+In order to aid cross-compilation, we provide a set of
 tools to profile the execution of an MPI application.
 
 For static analysis, we use the [MPI-Usage](https://github.com/LLNL/MPI-Usage)
