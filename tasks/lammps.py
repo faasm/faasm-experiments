@@ -3,6 +3,7 @@ from subprocess import run
 from copy import copy
 import os
 
+from faasmcli.util.endpoints import get_upload_host_port
 from faasmcli.util.env import FAASM_TOOLCHAIN_FILE, SYSROOT_INSTALL_PREFIX
 from faasmcli.util.files import clean_dir
 from invoke import task
@@ -16,11 +17,10 @@ LAMMPS_DIR = join(EXPERIMENTS_THIRD_PARTY, "lammps")
 # https://lammps.sandia.gov/doc/Build_cmake.html
 
 
-@task(default=True)
+@task
 def build(ctx, clean=False):
     """
-    Builds the LAMMPS Molecular Dynamics Simulator
-    https://lammps.sandia.gov
+    Build and install the LAMMPS Molecular Dynamics Simulator
     """
     work_dir = join(LAMMPS_DIR, "build")
     cmake_dir = join(LAMMPS_DIR, "cmake")
@@ -32,7 +32,7 @@ def build(ctx, clean=False):
     cmake_cmd = [
         "cmake",
         "-GNinja",
-        "PKG_BODY=on", # We compile an additional package for experiments
+        "PKG_BODY=on",  # We compile an additional package for experiments
         "-DFAASM_BUILD_TYPE=wasm",
         "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
@@ -51,7 +51,14 @@ def build(ctx, clean=False):
     if res.returncode != 0:
         raise RuntimeError("LAMMPS build failed")
 
-    # @csegarra: Is it advisable to actually install the binaries?
-#    res = run("ninja install", shell=True, cwd=work_dir)
-#    if res.returncode != 0:
-#        raise RuntimeError("LAMMPS install failed")
+    res = run("ninja install", shell=True, cwd=work_dir)
+    if res.returncode != 0:
+        raise RuntimeError("LAMMPS install failed")
+
+
+@task
+def run_lammps(ctx):
+    """
+    Run a LAMMPS task
+    """
+    pass
