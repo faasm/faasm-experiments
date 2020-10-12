@@ -24,8 +24,10 @@ def build(ctx, clean=False):
     """
     work_dir = join(LAMMPS_DIR, "build")
     cmake_dir = join(LAMMPS_DIR, "cmake")
+    install_dir = join(LAMMPS_DIR, "install")
 
     clean_dir(work_dir, clean)
+    clean_dir(install_dir, clean)
 
     env_vars = copy(os.environ)
 
@@ -36,7 +38,7 @@ def build(ctx, clean=False):
         "-DFAASM_BUILD_TYPE=wasm",
         "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
-        "-DCMAKE_INSTALL_PREFIX={}".format(SYSROOT_INSTALL_PREFIX),
+        "-DCMAKE_INSTALL_PREFIX={}".format(install_dir),
         cmake_dir,
     ]
 
