@@ -5,6 +5,7 @@ import os
 
 from faasmcli.util.endpoints import get_upload_host_port
 from faasmcli.util.env import FAASM_TOOLCHAIN_FILE, SYSROOT_INSTALL_PREFIX
+from faasmcli.util.env import FAASM_HOME
 from faasmcli.util.files import clean_dir
 from invoke import task
 
@@ -25,6 +26,7 @@ def build(ctx, clean=False):
     work_dir = join(LAMMPS_DIR, "build")
     cmake_dir = join(LAMMPS_DIR, "cmake")
     install_dir = join(LAMMPS_DIR, "install")
+    wasm_path = join(FAASM_HOME, "lammps", "test", "function.wasm")
 
     clean_dir(work_dir, clean)
     clean_dir(install_dir, clean)
@@ -56,6 +58,12 @@ def build(ctx, clean=False):
     res = run("ninja install", shell=True, cwd=work_dir)
     if res.returncode != 0:
         raise RuntimeError("LAMMPS install failed")
+
+    # Copy binary to wasm/lammps/test/function.wasm
+    print("cp {}/bin/lmp {}".format(install_dir, wasm_path))
+    print(
+        "cp /home/csegarra/Work/IMP/sless-wasm/faasm-experiments/third-party/lammps/install/bin/lmp /home/csegarra/Work/IMP/sless-wasm/faasm/wasm/lammps/test/function.wasm"
+    )
 
 
 @task
