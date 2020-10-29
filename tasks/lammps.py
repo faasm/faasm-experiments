@@ -4,8 +4,8 @@ from copy import copy
 import os
 
 from faasmcli.util.endpoints import get_upload_host_port
-from faasmcli.util.env import FAASM_TOOLCHAIN_FILE, SYSROOT_INSTALL_PREFIX
-from faasmcli.util.env import FAASM_HOME
+from faasmtools.build import CMAKE_TOOLCHAIN_FILE
+from faasmcli.util.env import PROJ_ROOT
 from faasmcli.util.files import clean_dir
 from invoke import task
 
@@ -26,7 +26,7 @@ def build(ctx, clean=False):
     work_dir = join(LAMMPS_DIR, "build")
     cmake_dir = join(LAMMPS_DIR, "cmake")
     install_dir = join(LAMMPS_DIR, "install")
-    wasm_path = join(FAASM_HOME, "lammps", "test", "function.wasm")
+    wasm_path = join(PROJ_ROOT, "wasm", "lammps", "test", "function.wasm")
 
     clean_dir(work_dir, clean)
     clean_dir(install_dir, clean)
@@ -38,7 +38,7 @@ def build(ctx, clean=False):
         "-GNinja",
         "PKG_BODY=on",  # We compile an additional package for experiments
         "-DFAASM_BUILD_TYPE=wasm",
-        "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
+        "-DCMAKE_TOOLCHAIN_FILE={}".format(CMAKE_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_INSTALL_PREFIX={}".format(install_dir),
         cmake_dir,
@@ -61,9 +61,6 @@ def build(ctx, clean=False):
 
     # Copy binary to wasm/lammps/test/function.wasm
     print("cp {}/bin/lmp {}".format(install_dir, wasm_path))
-    print(
-        "cp /home/csegarra/Work/IMP/sless-wasm/faasm-experiments/third-party/lammps/install/bin/lmp /home/csegarra/Work/IMP/sless-wasm/faasm/wasm/lammps/test/function.wasm"
-    )
 
 
 @task
