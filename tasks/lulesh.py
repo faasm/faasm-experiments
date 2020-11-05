@@ -11,7 +11,7 @@ from faasmcli.util.env import (
     WASM_DIR,
 )
 from faasmcli.util.files import clean_dir
-from faasmcli.util.toolchain import (
+from faasmtools.build import (
     BASE_CONFIG_CMD,
     BASE_CONFIG_FLAGS,
     WASM_AR,

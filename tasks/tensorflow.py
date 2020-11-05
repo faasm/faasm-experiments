@@ -7,7 +7,7 @@ from faasmcli.util.compile import wasm_cmake, wasm_copy_upload
 from faasmcli.util.endpoints import get_upload_host_port
 from faasmcli.util.env import FAASM_SHARED_STORAGE_ROOT, FUNC_DIR
 from faasmcli.util.state import upload_binary_state, upload_shared_file
-from faasmcli.util.toolchain import (
+from faasmtools.build import (
     BASE_CONFIG_CMD,
     WASM_CFLAGS,
     WASM_CXXFLAGS,
