@@ -16,5 +16,6 @@ endif ()
 add_subdirectory(gene)
 add_subdirectory(polybench)
 add_subdirectory(cpy)
+add_subdirectory(sgd)
 add_subdirectory(tf)
 
