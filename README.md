@@ -1,3 +1,14 @@
+# ARCHIVAL
+
+This repo is no longer used, and most of the experiments are not maintained.
+
+For more recent experiments see 
+[this repo](https://github.com/faasm/experiment-base).
+
+If trying to resurrect experiments in here, be aware that they use various 
+utilities since removed from Faasm in 
+[this PR](https://github.com/faasm/faasm/pull/464)
+
 # Faasm experiments
 
 This repository holds all experimental/ transient code related to 
